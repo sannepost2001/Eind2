@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Champignonetjes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/name.css') }}">
+</head>
+<body>
+<header>
+    <h1 align="left"><img height="146" src="/static/champignonengif.gif" width="121">Champignons compost
+        <align
+        ="left"><img height="146" src="/static/champignonengif.gif" width="121"></h1>
+</header>
+<nav>
+    <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="bacterie.html">Zoek op bacterie naam</a></li>
+        <li><a href="tabel.html">Tabel met blast data</a></li>
+        <li><a href="statistiek.html">Statistieken</a></li>
+    </ul>
+</nav>
+<main>
+    <article>
+        <form method="POST" style="width:737px; ">
+            <p1>Zoekwoord:</p1>
+            <input type="text" name="zoekwoord">
+            <input type="submit" value="Submit">
+        </form>
+    </article>
+    <aside>
+        <h3>Gerelateerd</h3>
+        <ul>
+            <li><a href="https://nl.wikipedia.org/wiki/Champignon">Champignons</a></li>
+            <li><a href="https://nl.wikipedia.org/wiki/Compost">Compost</a></li>
+            <li><a href="https://nl.wikipedia.org/wiki/Champost">Champost</a></li>
+            <!--<li><a href="#"></a></li>-->
+            <!--<li><a href="#"></a></li>-->
+        </ul>
+    </aside>
+
+</main>
+<footer>
+    <p1>Ruben Kampf, Ronald van Kuppevelt en Sanne Post.</p1>
+</footer>
+</body>
+</html>
+

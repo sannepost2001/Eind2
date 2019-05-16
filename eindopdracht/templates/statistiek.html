@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Champignonetjes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/name.css') }}">
+</head>
+<body>
+<header>
+    <h1 align="left"><img height="146" src="/static/champignonengif.gif" width="121">Champignons compost
+        <align
+        ="left"><img height="146" src="/static/champignonengif.gif" width="121"></h1>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+
+            var data = google.visualization.arrayToDataTable([
+                ['Naam', '%'],
+                ['', 11],
+                ['', 2],
+                ['', 2],
+                ['', 2],
+                ['', 7]
+            ]);
+
+            var options = {
+                title: 'Meest voorkomende bacteriën'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+            chart.draw(data, options);
+        }
+    </script>
+</header>
+
+<nav>
+    <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="bacterie.html">Zoek op bacterie naam</a></li>
+        <li><a href="tabel.html">Tabel met blast data</a></li>
+        <li><a href="statistiek.html">Statistieken</a></li>
+    </ul>
+</nav>
+<main>
+    <div id="piechart" style="width:737px;"></div>
+    <aside>
+        <h3>Gerelateerd</h3>
+        <ul>
+            <li><a href="https://nl.wikipedia.org/wiki/Champignon">Champignons</a></li>
+            <li><a href="https://nl.wikipedia.org/wiki/Compost">Compost</a></li>
+            <li><a href="https://nl.wikipedia.org/wiki/Champost">Champost</a></li>
+            <!--<li><a href="#"></a></li>-->
+            <!--<li><a href="#"></a></li>-->
+        </ul>
+    </aside>
+
+</main>
+
+<footer>
+    <p1>Ruben Kampf, Ronald van Kuppevelt en Sanne Post.</p1>
+</footer>
+
+</body>
+</html>
