@@ -62,14 +62,18 @@ def pagina(filename):
             records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
             cursor.close()
             conn.close()
-            teruggeven = ("<table id=\"myTable\" style=\"width:737px; height: 400px;\">"
+            teruggeven = ("<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                           + "<tr>\n"
                           + "    <th onclick=\"sortTable(0)\">Naam</th>\n"
-                          + "    <th onclick=\"sortTable(1)\">Accessie code</th>\n"
-                          + "    <th onclick=\"sortTable(2)\">Discriptie</th>\n"
+                          + "    <th onclick=\"sortTable(1)\">E-value:</th>\n"
+                          + "    <th onclick=\"sortTable(2)\">Bit)score:</th>\n"
+                          + "    <th onclick=\"sortTable(3)\">Coverage:</th>\n"
+                          + "    <th onclick=\"sortTable(4)\">%identity:</th>\n"
                           + "    </tr>")
             for row in records:
                 teruggeven = teruggeven + "<tr>"
+                teruggeven = teruggeven + "<td>" + (row[0]) + "</td>"
+                teruggeven = teruggeven + "<td>" + (row[0]) + "</td>"
                 teruggeven = teruggeven + "<td>" + (row[0]) + "</td>"
                 teruggeven = teruggeven + "<td>" + (row[0]) + "</td>"
                 teruggeven = teruggeven + "<td>" + (row[0]) + "</td>"
