@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="shortcut icon" href="/static/favicon.ico">
     <meta charset="utf-8">
     <title>Champignonetjes</title>
     <link rel="stylesheet" href="{{ url_for('static', filename = 'css/name.css') }}">
@@ -23,8 +24,10 @@
     <article>
         <form method="POST" style="width:737px; ">
             <p1>Zoekwoord:</p1>
-            <input type="text" name="zoekwoord">
+            <input type="text" name="zoekwoord" value="{{zoekwoord}}">
             <input type="submit" value="Submit">
+            <br>
+            {{teruggeven|safe}}
         </form>
     </article>
     <aside>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="shortcut icon" href="/static/favicon.ico">
     <meta charset="utf-8">
     <title>Champignonetjes</title>
     <link rel="stylesheet" href="{{ url_for('static', filename = 'css/name.css') }}">
@@ -20,54 +21,22 @@
     </ul>
 </nav>
 <main style="width:945px; ">
-    <table id="myTable" style="width:737px; height: 400px;">
-        <tr>
-            <th onclick="sortTable(0)">Naam</th>
-            <th onclick="sortTable(1)">Accessie code</th>
-            <th onclick="sortTable(2)">Discriptie</th>
-        </tr>
-        <tr>
-            <td>Berglunds snabbkop</td>
-            <td>Sweden</td>
-            <td>Sweden</td>
-        </tr>
-        <tr>
-            <td>North/South</td>
-            <td>UK</td>
-            <td>Sweden</td>
-        </tr>
-        <tr>
-            <td>Alfreds Futterkiste</td>
-            <td>Germany</td>
-            <td>Sweden</td>
-        </tr>
-        <tr>
-            <td>Koniglich Essen</td>
-            <td>Germany</td>
-            <td>Sweden</td>
-        </tr>
-        <tr>
-            <td>Magazzini Alimentari Riuniti</td>
-            <td>Italy</td>
-            <td>Sweden</td>
-        </tr>
-        <tr>
-            <td>Paris specialites</td>
-            <td>France</td>
-            <td>Sweden</td>
-        </tr>
-        <tr>
-            <td>Island Trading</td>
-            <td>UK</td>
-            <td>Sweden</td>
-        </tr>
-        <tr>
-            <td>Laughing Bacchus Winecellars</td>
-            <td>Canada</td>
-            <td>lol</td>
-        </tr>
-    </table>
-
+    <article>
+        <form method="POST" style="width:737px; ">
+            <p1>Naam:</p1>
+            <input type="text" name="naam" value="{{naam}}">
+            <p1>E-value:</p1>
+            <input type="text" name="evalue" value="{{evalue}}">
+            <p1>(Bit)score:</p1>
+            <input type="text" name="score" value="{{score}}"><br>
+            <p1>Coverage:</p1>
+            <input type="text" name="coverage" value="{{coverage}}">
+            <p1>%identity:</p1>
+            <input type="text" name="identity" value="{{identity}}">
+            <input type="submit" value="Submit">
+        </form>
+        {{teruggeven|safe}}
+    </article>
     <script>
         function sortTable(n) {
             var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
