@@ -18,12 +18,10 @@
 
         function drawChart() {
 
-            var data = google.visualization.arrayToDataTable([
-                {{teruggeven | safe
+            var data = google.visualization.arrayToDataTable([{{teruggeven | safe
         }
-        }
-
-            ]);
+        }])
+            ;
 
             var options = {
                 title: 'Meest voorkomende bacteriën'
