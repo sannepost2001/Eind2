@@ -31,35 +31,43 @@ class Database:
         self.cursor.execute(query)
         self.database.commit()
 
+    def get_id(self):
+        pass
+
     def save_all(self, header, read, seq, blast_results):
         """Insert all data into database"""
-        record = NCBIXML.parse(blast_results)
+        records = NCBIXML.parse(blast_results)
         # Todo: Read how to and make those loops reading every result
+        # Todo: Limit to 10 results
 
         columns = "header"
         values = [header]
         self.insert("original", columns, values)
+        for i, blast_record in enumerate(records):
+            if i == 10:
+                break
+            # for alignment in blast_record.alignments:
+            #     for hsp in alignment.hsps:
+            columns = "sequence, read, score"  #FASTQ score
+            values = [seq, read, hsp.score]
+            self.insert("sequence", columns, values)
 
-        columns = "sequence, read, score"
-        values = [seq, read, record.hsps.score]  # Todo: How does this work
-        self.insert("sequence", columns, values)
+            columns = "scale, name, TAXONOMY_id"  # Todo: Have to finish taxonomy script for this
+            values = []
+            self.insert("taxonomy", columns, values)
 
-        columns = "scale, name, TAXONOMY_id"
-        values = []
-        self.insert("taxonomy", columns, values)
+            columns = "name, accessioncode, description, maxscore, bits, evalue, querycoverage, " \
+                      "percidentity, SEQUENCE_id, TAXONOMY_id"  # Todo: Query and get right ID's?
+            values = []
+            self.insert("blast", columns, values)
 
-        columns = "name, accessioncode, description, maxscore, bits, evalue, querycoverage, " \
-                  "percidentity, SEQUENCE_id, TAXONOMY_id"  # Todo: Query and get right ID's?
-        values = []
-        self.insert("blast", columns, values)
+            columns = "function"
+            values = []
+            self.insert("functionality", columns, values)
 
-        columns = "function"
-        values = []
-        self.insert("functionality", columns, values)
-
-        columns = "FUNCTIONALITY_id, BLAST_id"
-        values = []
-        self.insert("functionint", columns, values)
+            columns = "FUNCTIONALITY_id, BLAST_id"
+            values = []
+            self.insert("functionint", columns, values)
 
 
 class BLASTer:
@@ -94,7 +102,8 @@ def readfile(data_file):
             content = line.split("\t")
             header = content[0][:-2]
             read = content[0][-1:]
-            seq = content[2]
+            score = content[2]
+            seq = content[1]
             print("Checkpoint 1")  # Debug prints
             result = blast.blast(seq)
             print("Checkpoint 2")
@@ -104,12 +113,16 @@ def readfile(data_file):
             print("Pausing 3 min")
             sleep(180)
 
-            header = content[4][:-2]
-            read = content[4][-1:]
-            seq = content[5]
+            header = content[3][:-2]
+            read = content[3][-1:]
+            seq = content[4]
+            score = content[5]
             result = blast.blast(seq)
             # db.save_all(header, read, seq, result)
             sleep(180)
+
+    def calc_score:
+        pass
 
 
 main()
