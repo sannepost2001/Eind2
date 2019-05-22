@@ -23,7 +23,11 @@ class Database:
         self.cursor = self.database.cursor()
 
     def insert(self, table, cols, valuelist):
-        """Insert something into database"""
+        """Insert something into database
+        :param table:
+        :param cols:
+        :param valuelist:
+        """
         vals = ""
         for value in valuelist:
             vals += value
@@ -35,7 +39,12 @@ class Database:
         pass
 
     def save_all(self, header, read, seq, blast_results):
-        """Insert all data into database"""
+        """Insert all data into database
+        :param header:
+        :param read:
+        :param seq:
+        :param balst_results:
+        """
         records = NCBIXML.parse(blast_results)
         # Todo: Read how to and make those loops reading every result
         # Todo: Limit to 10 results
@@ -80,6 +89,11 @@ class BLASTer:
         self.blastmethods = ["blastx", "tblastx"]
 
     def blast(self, seq):
+        """
+
+        :param seq:
+        :return:
+        """
         for i, blastmethod in enumerate(self.blastmethods):
             result = qblast(self.blastmethods[i], self.database, seq, format_type=self.format,
                             expect=self.evalue, matrix_name=self.matrix)
@@ -95,6 +109,10 @@ def main():
 
 
 def readfile(data_file):
+    """
+    :param data_file:
+    :return:
+    """
     db = Database()
     blast = BLASTer()
     with open(data_file, "r") as file:
@@ -121,8 +139,22 @@ def readfile(data_file):
             # db.save_all(header, read, seq, result)
             sleep(180)
 
-    def calc_score:
-        pass
+
+    def calc_score(score):
+        """transcribes the FASTQ score string to an integer and returns
+        :param score: FASTQ score string from provided csv file
+        :return: calculated FASTQ score integer
+        """
+        count = 0
+        scorelist = ["!", '"', "#", "$", "%", "&", "'", "(", ")", "*", "+", ","
+                     , "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7",
+                     "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B", "C"
+                     , "D", "E", "F", "G", "H", "I", "J", "K"]
+        for letter in score:
+            for i in range(len(scorelist)):
+                if letter == scorelist[i]:
+                    count += i
+        return count
 
 
 main()
