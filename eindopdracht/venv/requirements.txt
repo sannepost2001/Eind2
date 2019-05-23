@@ -1,0 +1,6 @@
+biopython==1.73
+Click==7.0
+Flask==1.0.2
+Jinja2==2.10.1
+mysql-connector==2.1.6
+Werkzeug==0.15.2
