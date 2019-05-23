@@ -1,6 +1,8 @@
-/*General settings*/
+/* || General setup */
+
 html, body {
-    padding: 10px;
+    margin: 0;
+    padding: 0;
 }
 
 html {
@@ -20,7 +22,11 @@ h1, h2, h3 {
     color: #2a2a2a;
 }
 
-
+li {
+    font-family: 'Arial Narrow', sans-serif;
+    color: #2a2a2a;
+    font-size: 20px;
+}
 
 a, input {
     font-family: 'Arial Narrow', sans-serif;
@@ -60,21 +66,18 @@ h2 {
 
 h3 {
     font-size: 2.2rem;
-    text-align: center;
 }
 
 li {
+    font-size: 1.6rem;
     line-height: 1.5;
-    font-family: 'Arial Narrow', sans-serif;
-    color: #2a2a2a;
-    font-size: 20px;
 }
-
 
 /* || header layout */
 
-article, footer {
+nav, article, aside, footer {
     background-color: white;
+    padding: 1%;
 }
 
 nav {
@@ -84,13 +87,17 @@ nav {
     margin-bottom: 10px;
 }
 
+nav ul {
+    padding: 0;
+    list-style-type: none;
+    flex: 2;
+    display: flex;
+}
+
 nav li {
-    display: inline-block;
+    display: inline;
     text-align: center;
     flex: 1;
-    list-style-type: none;
-    margin: 0;
-    padding: 2%;
 }
 
 nav a {
@@ -106,7 +113,7 @@ nav form {
     display: flex;
     align-items: center;
     height: 100%;
-    padding: 2%;
+    padding: 0 2em;
 }
 
 input {
@@ -133,7 +140,7 @@ main {
 }
 
 article {
-    flex: 1;
+    flex: 4;
 }
 
 aside {
@@ -143,10 +150,7 @@ aside {
 }
 
 aside li {
-    display: block;
-    list-style-type: disc;
-    margin: 2%;
-    padding: 2% 2% 10px;
+    padding-bottom: 10px;
 }
 
 footer {
@@ -172,3 +176,4 @@ th, td {
 tr:nth-child(even) {
     background-color: #f2f2f2
 }
+

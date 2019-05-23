@@ -43,11 +43,11 @@ def pagina(filename):
             conn.close()
             # maakt een tabel van de gevonden data
             teruggeven = ("<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
-                          + "<tr>\n"
-                          + "    <th onclick=\"sortTable(0)\">Naam</th>\n"
-                          + "    <th onclick=\"sortTable(1)\">Accessiecode:</th>\n"
-                          + "    <th onclick=\"sortTable(2)\">Functie:</th>\n"
-                          + "    </tr>")
+                          + "   <tr>\n"
+                          + "   <th onclick=\"sortTable(0)\">Naam</th>\n"
+                          + "   <th onclick=\"sortTable(1)\">Accessiecode:</th>\n"
+                          + "   <th onclick=\"sortTable(2)\">Functie:</th>\n"
+                          + "   </tr>")
             for rows in records:
                 for row in rows:
                     teruggeven = teruggeven + "<tr>"
@@ -99,7 +99,7 @@ def pagina(filename):
             cursor.close()
             conn.close()
             teruggeven = ("<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
-                          + "<tr>\n"
+                          + "    <tr>\n"
                           + "    <th onclick=\"sortTable(0)\">Naam</th>\n"
                           + "    <th onclick=\"sortTable(1)\">E-value:</th>\n"
                           + "    <th onclick=\"sortTable(2)\">(Bit)score:</th>\n"
