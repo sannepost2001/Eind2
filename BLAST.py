@@ -10,7 +10,6 @@ from Bio.Blast import NCBIXML
 # Insert statements - foreign keys?
 # Taxonomy code/biopython calls
 # "Resume after interrupted" code
-# Save the XML blast result (Done?)
 
 
 class Database:
@@ -38,43 +37,53 @@ class Database:
     def get_id(self):
         pass
 
-    def save_all(self, header, read, seq, blast_results):
+    def save_all(self, header, read, seq, score, blast_results):
         """Insert all data into database
         :param header:
         :param read:
         :param seq:
-        :param balst_results:
+        :param score:
+        :param blast_results:
         """
         records = NCBIXML.parse(blast_results)
-        # Todo: Read how to and make those loops reading every result
-        # Todo: Limit to 10 results
 
         columns = "header"
         values = [header]
         self.insert("original", columns, values)
-        for i, blast_record in enumerate(records):
-            if i == 10:
-                break
+
+        for blast_record in records:
             # for alignment in blast_record.alignments:
             #     for hsp in alignment.hsps:
-            columns = "sequence, read, score"  #FASTQ score
-            values = [seq, read, hsp.score]
+            columns = "sequence, read, score"  # FASTQ score
+            values = [seq, read, score]
             self.insert("sequence", columns, values)
 
             columns = "scale, name, TAXONOMY_id"  # Todo: Have to finish taxonomy script for this
             values = []
             self.insert("taxonomy", columns, values)
 
-            columns = "name, accessioncode, description, maxscore, bits, evalue, querycoverage, " \
-                      "percidentity, SEQUENCE_id, TAXONOMY_id"  # Todo: Query and get right ID's?
-            values = []
-            self.insert("blast", columns, values)
+            for a, alignment in enumerate(blast_record.alignments):
+                title = alignment.title.split("|")
+                a_name = title[2]  # Is this right?
+                a_acode = title[1]
+                desc = blast_record.descriptions[a].title
+                for i, hsp in enumerate(alignment.hsps):  # Limit to 10 results?
+                    if i == 10:
+                        print("10 results inserted.")
+                        return None
+                    columns = "name, accessioncode, description, maxscore, bits, evalue, querycoverage, " \
+                              "percidentity, SEQUENCE_id, TAXONOMY_id"
+                    values = [a_name, a_acode, desc, hsp.score, float(hsp.bits),
+                              hsp.expect, ((hsp.query-hsp.query_start)/300), hsp.identity,
+                              "SEQUENCE_id", "TAXONOMY_id"]
+                    # Todo: Query and get right ID's?
+                    self.insert("blast", columns, values)
 
-            columns = "function"
-            values = []
-            self.insert("functionality", columns, values)
+                    columns = "function"  # Todo: Later probably
+                    values = []
+                    self.insert("functionality", columns, values)
 
-            columns = "FUNCTIONALITY_id, BLAST_id"
+            columns = "FUNCTIONALITY_id, BLAST_id"  # Todo: Also query for right ID's
             values = []
             self.insert("functionint", columns, values)
 
@@ -90,9 +99,9 @@ class BLASTer:
 
     def blast(self, seq):
         """
-
-        :param seq:
-        :return:
+        Put a sequence in BLAST
+        :param seq: Sequence to use
+        :return: Returns BLAST results
         """
         for i, blastmethod in enumerate(self.blastmethods):
             result = qblast(self.blastmethods[i], self.database, seq, format_type=self.format,
@@ -106,6 +115,7 @@ def main():
     file = "Course4_dataset_v03.csv"
 
     readfile(file)
+    print("Script done")
 
 
 def readfile(data_file):
@@ -120,41 +130,51 @@ def readfile(data_file):
             content = line.split("\t")
             header = content[0][:-2]
             read = content[0][-1:]
-            score = content[2]
+            score = calc_score(content[2])
             seq = content[1]
-            print("Checkpoint 1")  # Debug prints
-            result = blast.blast(seq)
-            print("Checkpoint 2")
+            print("Blasting")  # Debug prints
+            # result = blast.blast(seq)
+            result = debug_usexmlfile()  # Todo: Debug, remove later
+            return None  # Todo: Debug, remove later
+            print("Blast complete")
             with open("blast results xml.xml", "w") as wfile:
                 wfile.writelines(result)
-            # db.save_all(header, read, seq, result)
+            # db.save_all(header, read, seq, score, result)
             print("Pausing 3 min")
             sleep(180)
 
             header = content[3][:-2]
             read = content[3][-1:]
             seq = content[4]
-            score = content[5]
+            score = calc_score(content[5])
+            print("Blasting")
             result = blast.blast(seq)
-            # db.save_all(header, read, seq, result)
+            print("Blast complete")
+            # db.save_all(header, read, seq, score result)
             sleep(180)
 
 
-    def calc_score(score):
-        """transcribes the FASTQ score string to an integer and returns
-        :param score: FASTQ score string from provided csv file
-        :return: calculated FASTQ score integer
-        """
-        count = 0
-        scorelist = ["!", '"', "#", "$", "%", "&", "'", "(", ")", "*", "+", ","
-                     , "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7",
-                     "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B", "C"
-                     , "D", "E", "F", "G", "H", "I", "J", "K"]
-        for letter in score:
-            for i in range(len(scorelist)):
-                if letter == scorelist[i]:
-                    count += i
-        return count
+def debug_usexmlfile():  # Todo: Debug, remove later
+    with open("blast results xml.xml", "r") as rfile:
+        result = rfile.readlines()
+        result = NCBIXML.parse(result)
+        return result
+
+def calc_score(score):
+    """transcribes the FASTQ score string to an integer and returns
+    :param score: FASTQ score string from provided csv file
+    :return: calculated FASTQ score integer
+    """
+    count = 0
+    scorelist = ["!", '"', "#", "$", "%", "&", "'", "(", ")", "*", "+", ","
+                 , "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7",
+                 "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B", "C"
+                 , "D", "E", "F", "G", "H", "I", "J", "K"]
+    for letter in score:
+        for i in range(len(scorelist)):
+            if letter == scorelist[i]:
+                count += i
+    return count
 
 
 main()
