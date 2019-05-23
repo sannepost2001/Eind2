@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="NL">
 <head>
     <link rel="shortcut icon" href="/static/favicon.ico">
     <meta charset="utf-8">
@@ -8,9 +8,7 @@
 </head>
 <body>
 <header>
-    <h1 align="left"><img height="146" src="/static/champignonengif.gif" width="121">Champignons compost
-        <align
-        = "left"><img height="146" src="/static/champignonengif.gif" width="121"></h1>
+    <h1><img height="146" src="/static/champignonengif.gif" width="121">Champignons compost<img height="146" src="/static/champignonengif.gif" width="121"></h1>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
         google.charts.load('current', {'packages': ['corechart']});
@@ -18,10 +16,7 @@
 
         function drawChart() {
 
-            var data = google.visualization.arrayToDataTable([{{teruggeven | safe
-        }
-        }])
-            ;
+            var data = google.visualization.arrayToDataTable([{{teruggeven | safe}}]);
 
             var options = {
                 title: 'Meest voorkomende bacteriën'
