@@ -72,6 +72,9 @@ class Database:
 
         for blast_record in records:
             for a, alignment in enumerate(blast_record.alignments):
+                if a == 10:
+                    print("10 results")
+                    return None
                 title = alignment.title.split("|")
                 a_name = title[2]  # Example title: >gb|AF283004.1|AF283004 Arabidopsis thaliana etc etc
                 a_acode = title[1]
