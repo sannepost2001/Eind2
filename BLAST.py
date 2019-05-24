@@ -6,8 +6,8 @@ from Bio.Blast.NCBIWWW import qblast
 from Bio.Blast import NCBIXML
 
 # # #   To-do list
-# Insert statements - Data from BLAST objects
-# Insert statements - foreign keys?
+# Insert statements - Data from BLAST objects (Done)
+# Insert statements - foreign keys? (Done for sequence_id)
 # Taxonomy code/biopython calls
 # "Resume after interrupted" code
 
@@ -34,10 +34,7 @@ class Database:
         self.cursor.execute(query)
         self.database.commit()
 
-    def get_id(self):
-        pass
-
-    def save_all(self, header, read, seq, score, blast_results):
+    def insert_all(self, header, read, seq, score, blast_results):
         """Insert all data into database
         :param header:
         :param read:
@@ -45,26 +42,27 @@ class Database:
         :param score:
         :param blast_results:
         """
+
         records = NCBIXML.parse(blast_results)
 
         columns = "header"
         values = [header]
         self.insert("original", columns, values)
 
+        columns = "sequence, read, score"  # FASTQ score
+        values = [seq, read, score]
+        self.insert("sequence", columns, values)
+        seq_id = self.cursor.execute(int("select MAX(id) from sequence"))
+
+        columns = "scale, name, TAXONOMY_id"  # Todo: Have to finish taxonomy script for this
+        values = []
+        self.insert("taxonomy", columns, values)
+        tax_id = self.cursor.execute(int("select MAX(id) from taxonomy"))
+
         for blast_record in records:
-            # for alignment in blast_record.alignments:
-            #     for hsp in alignment.hsps:
-            columns = "sequence, read, score"  # FASTQ score
-            values = [seq, read, score]
-            self.insert("sequence", columns, values)
-
-            columns = "scale, name, TAXONOMY_id"  # Todo: Have to finish taxonomy script for this
-            values = []
-            self.insert("taxonomy", columns, values)
-
             for a, alignment in enumerate(blast_record.alignments):
                 title = alignment.title.split("|")
-                a_name = title[2]  # Is this right?
+                a_name = title[2]  # Example title: >gb|AF283004.1|AF283004 Arabidopsis thaliana etc etc
                 a_acode = title[1]
                 desc = blast_record.descriptions[a].title
                 for i, hsp in enumerate(alignment.hsps):  # Limit to 10 results?
@@ -75,17 +73,16 @@ class Database:
                               "percidentity, SEQUENCE_id, TAXONOMY_id"
                     values = [a_name, a_acode, desc, hsp.score, float(hsp.bits),
                               hsp.expect, ((hsp.query-hsp.query_start)/300), hsp.identity,
-                              "SEQUENCE_id", "TAXONOMY_id"]
-                    # Todo: Query and get right ID's?
+                              seq_id, tax_id]
                     self.insert("blast", columns, values)
 
-                    columns = "function"  # Todo: Later probably
-                    values = []
-                    self.insert("functionality", columns, values)
+                    # columns = "function"  # Todo: Leave for later? Use accession code to find.
+                    # values = []
+                    # self.insert("functionality", columns, values)
 
-            columns = "FUNCTIONALITY_id, BLAST_id"  # Todo: Also query for right ID's
-            values = []
-            self.insert("functionint", columns, values)
+            # columns = "FUNCTIONALITY_id, BLAST_id"  # Todo: Also query for right ID's
+            # values = []
+            # self.insert("functionint", columns, values)
 
 
 class BLASTer:
@@ -126,20 +123,25 @@ def readfile(data_file):
     db = Database()
     blast = BLASTer()
     with open(data_file, "r") as file:
+        tcount = 0
         for line in file:
+            tcount += 1
+            if tcount == 11:  # Remove later
+                print("Testing limit reached, quitting")
+                return None
             content = line.split("\t")
             header = content[0][:-2]
             read = content[0][-1:]
             score = calc_score(content[2])
             seq = content[1]
             print("Blasting")  # Debug prints
-            # result = blast.blast(seq)
-            result = debug_usexmlfile()  # Todo: Debug, remove later
-            return None  # Todo: Debug, remove later
+            result = blast.blast(seq)
+            # result = debug_usexmlfile()  # Debug, remove later
+            # return None                  # Debug, remove later
             print("Blast complete")
-            with open("blast results xml.xml", "w") as wfile:
+            with open("blast results xml 1.xml", "w") as wfile:
                 wfile.writelines(result)
-            # db.save_all(header, read, seq, score, result)
+            # db.insert_all(header, read, seq, score, result)
             print("Pausing 3 min")
             sleep(180)
 
@@ -150,15 +152,18 @@ def readfile(data_file):
             print("Blasting")
             result = blast.blast(seq)
             print("Blast complete")
-            # db.save_all(header, read, seq, score result)
+            with open("blast results xml 2.xml", "w") as wfile:
+                wfile.writelines(result)
+            # db.insert_all(header, read, seq, score result)
             sleep(180)
 
 
-def debug_usexmlfile():  # Todo: Debug, remove later
+def debug_usexmlfile():  # Debug, remove later
     with open("blast results xml.xml", "r") as rfile:
         result = rfile.readlines()
         result = NCBIXML.parse(result)
         return result
+
 
 def calc_score(score):
     """transcribes the FASTQ score string to an integer and returns
