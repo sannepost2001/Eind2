@@ -36,38 +36,27 @@ class Database:
         self.cursor.execute(query)
         self.database.commit()
 
-    def insert_all(self, header, read, seq, score, blast_results):
-    def get_id(self):
-        pass
-
     def taxonomy(self, a_acode):
-        """
-        :param accode:
-        :return:
-        """
-
-        def taxonomy(a_acode):
-            search = Entrez.efetch(id=a_acode, db="protein", retmode="xml")
-            data = Entrez.read(search)
-            speciesname = data[0].get('GBSeq_organism')
-            search = Entrez.esearch(term=speciesname, db="taxonomy",
-                                    retmode="xml")
-            record = Entrez.read(search)
-            taxid = record['IdList'][0]
-            search = Entrez.efetch(id=taxid, db="taxonomy", retmode="xml")
-            data = Entrez.read(search)
-            data = data[0].get('Lineage').split('; ')
-            data.append(speciesname.split(" ")[1])
-            return data
-
+        search = Entrez.efetch(id=a_acode, db="protein", retmode="xml")
+        data = Entrez.read(search)
+        speciesname = data[0].get('GBSeq_organism')
+        search = Entrez.esearch(term=speciesname, db="taxonomy",
+                                retmode="xml")
+        record = Entrez.read(search)
+        taxid = record['IdList'][0]
+        search = Entrez.efetch(id=taxid, db="taxonomy", retmode="xml")
+        data = Entrez.read(search)
+        data = data[0].get('Lineage').split('; ')
+        data.append(speciesname.split(" ")[1])
+        return data
 
     def save_all(self, header, read, seq, score, blast_results):
         """Insert all data into database
-        :param header:
-        :param read:
-        :param seq:
-        :param score:
-        :param blast_results:
+        :param header: Header to insert
+        :param read: Read to insert
+        :param seq: Sequence to insert
+        :param score: FASTQ score to insert
+        :param blast_results: Rest of data to insert as BLAST XML results
         """
 
         records = NCBIXML.parse(blast_results)
@@ -81,34 +70,30 @@ class Database:
         self.insert("sequence", columns, values)
         seq_id = self.cursor.execute(int("select MAX(id) from sequence"))
 
-        columns = "scale, name, TAXONOMY_id"  # Todo: Have to finish taxonomy script for this
-        values = []
-        self.insert("taxonomy", columns, values)
-        tax_id = self.cursor.execute(int("select MAX(id) from taxonomy"))
-
         for blast_record in records:
             for a, alignment in enumerate(blast_record.alignments):
                 title = alignment.title.split("|")
                 a_name = title[2]  # Example title: >gb|AF283004.1|AF283004 Arabidopsis thaliana etc etc
                 a_acode = title[1]
-                taxonomy(a_acode)
+                tax_list = self.taxonomy(a_acode)
                 desc = blast_record.descriptions[a].title
                 for i, hsp in enumerate(alignment.hsps):  # Limit to 10 results?
                     if i == 10:
                         print("10 results inserted.")
                         return None
+
+                    for tax in tax_list:
+                        taxid = self.cursor.execute(int("select MAX(id) from taxonomy"))  # "Real" ID
+                        columns = "name, TAXONOMY_id"  # Todo: Have to finish taxonomy script for this
+                        values = [tax, taxid]
+                        self.insert("taxonomy", columns, values)
+                    tax_id = self.cursor.execute(int("select MAX(id) from taxonomy"))  # Use for later referencesS
+
                     columns = "name, accessioncode, description, maxscore, bits, evalue, querycoverage, " \
                               "percidentity, SEQUENCE_id, TAXONOMY_id"
                     values = [a_name, a_acode, desc, hsp.score, float(hsp.bits),
                               hsp.expect, ((hsp.query-hsp.query_start)/300), hsp.identity,
                               seq_id, tax_id]
-                    columns = "name, accessioncode, description, maxscore, " \
-                              "bits, evalue, querycoverage, percidentity, " \
-                              "SEQUENCE_id, TAXONOMY_id"
-                    values = [a_name, a_acode, desc, hsp.score, float(hsp.bits)
-                              , hsp.expect, ((hsp.query-hsp.query_start)/300),
-                              hsp.identity,"SEQUENCE_id", "TAXONOMY_id"]
-                    # Todo: Query and get right ID's?
                     self.insert("blast", columns, values)
 
                     # columns = "function"  # Todo: Leave for later? Use accession code to find.
