@@ -4,6 +4,7 @@ from time import sleep
 # from tkinter import Tk, filedialog
 from Bio.Blast.NCBIWWW import qblast
 from Bio.Blast import NCBIXML
+from Bio import Entrez
 
 # # #   To-do list
 # Insert statements - Data from BLAST objects
@@ -22,6 +23,7 @@ class Database:
         self.cursor = self.database.cursor()
 
     def insert(self, table, cols, valuelist):
+        self.database.commit()
         """Insert something into database
         :param table:
         :param cols:
@@ -36,6 +38,27 @@ class Database:
 
     def get_id(self):
         pass
+
+    def taxonomy(self, a_acode):
+        """
+        :param accode:
+        :return:
+        """
+
+        def taxonomy(a_acode):
+            search = Entrez.efetch(id=a_acode, db="protein", retmode="xml")
+            data = Entrez.read(search)
+            speciesname = data[0].get('GBSeq_organism')
+            search = Entrez.esearch(term=speciesname, db="taxonomy",
+                                    retmode="xml")
+            record = Entrez.read(search)
+            taxid = record['IdList'][0]
+            search = Entrez.efetch(id=taxid, db="taxonomy", retmode="xml")
+            data = Entrez.read(search)
+            data = data[0].get('Lineage').split('; ')
+            data.append(speciesname.split(" ")[1])
+            return data
+
 
     def save_all(self, header, read, seq, score, blast_results):
         """Insert all data into database
@@ -66,16 +89,18 @@ class Database:
                 title = alignment.title.split("|")
                 a_name = title[2]  # Is this right?
                 a_acode = title[1]
+                taxonomy(a_acode)
                 desc = blast_record.descriptions[a].title
                 for i, hsp in enumerate(alignment.hsps):  # Limit to 10 results?
                     if i == 10:
                         print("10 results inserted.")
                         return None
-                    columns = "name, accessioncode, description, maxscore, bits, evalue, querycoverage, " \
-                              "percidentity, SEQUENCE_id, TAXONOMY_id"
-                    values = [a_name, a_acode, desc, hsp.score, float(hsp.bits),
-                              hsp.expect, ((hsp.query-hsp.query_start)/300), hsp.identity,
-                              "SEQUENCE_id", "TAXONOMY_id"]
+                    columns = "name, accessioncode, description, maxscore, " \
+                              "bits, evalue, querycoverage, percidentity, " \
+                              "SEQUENCE_id, TAXONOMY_id"
+                    values = [a_name, a_acode, desc, hsp.score, float(hsp.bits)
+                              , hsp.expect, ((hsp.query-hsp.query_start)/300),
+                              hsp.identity,"SEQUENCE_id", "TAXONOMY_id"]
                     # Todo: Query and get right ID's?
                     self.insert("blast", columns, values)
 
@@ -104,8 +129,9 @@ class BLASTer:
         :return: Returns BLAST results
         """
         for i, blastmethod in enumerate(self.blastmethods):
-            result = qblast(self.blastmethods[i], self.database, seq, format_type=self.format,
-                            expect=self.evalue, matrix_name=self.matrix)
+            result = qblast(self.blastmethods[i], self.database, seq,
+                            format_type=self.format, expect=self.evalue,
+                            matrix_name=self.matrix)
             if result:
                 self.seqs_blasted += 1
                 return result
@@ -159,6 +185,7 @@ def debug_usexmlfile():  # Todo: Debug, remove later
         result = rfile.readlines()
         result = NCBIXML.parse(result)
         return result
+
 
 def calc_score(score):
     """transcribes the FASTQ score string to an integer and returns
