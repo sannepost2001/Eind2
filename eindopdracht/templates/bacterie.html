@@ -14,19 +14,28 @@
 <nav>
     <ul>
         <li><a href="home.html">Home</a></li>
-        <li><a href="bacterie.html">Zoek op bacterie naam</a></li>
+        <li><a href="bacterie.html">Doorzoek de database</a></li>
         <li><a href="tabel.html">Tabel met blast data</a></li>
         <li><a href="statistiek.html">Statistieken</a></li>
     </ul>
 </nav>
 <main>
     <article>
-        <form method="POST" style="width:737px; ">
-            <p1>Zoekwoord:</p1>
+        <form method="POST" style="width:737px; " name="protien">
+            <p2>Doorzoek de database door het ingeven van een protiën naam:</p2>
             <input type="text" name="zoekwoord" value="{{zoekwoord}}">
             <input type="submit" value="Submit">
         </form>
+
+        <form method="POST" style="width:737px; " name="taxonomy">
+            <p2>Doorzoek de database door het ingeven van de taxonomy:</p2>
+            <input type="text" name="searchword" value="{{searchword}}">
+            <input type="submit" value="Submit">
+        </form>
+
         {{teruggeven|safe}}
+
+        {{giveback|safe}}
     </article>
     <script>
         function sortTable(n) {
@@ -99,6 +108,7 @@
 <footer>
     <p1>Ruben Kampf, Ronald van Kuppevelt en Sanne Post.</p1>
 </footer>
+<br>
 </body>
 </html>
 

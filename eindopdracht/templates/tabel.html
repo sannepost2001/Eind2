@@ -14,7 +14,7 @@
 <nav>
     <ul>
         <li><a href="home.html">Home</a></li>
-        <li><a href="bacterie.html">Zoek op bacterie naam</a></li>
+        <li><a href="bacterie.html">Doorzoek de database</a></li>
         <li><a href="tabel.html">Tabel met blast data</a></li>
         <li><a href="statistiek.html">Statistieken</a></li>
     </ul>
@@ -22,20 +22,21 @@
 <main>
     <article>
         <form method="POST">
-            <p1>Naam:</p1>
+            <p2>Naam:</p2>
             <input type="text" name="naam" value="{{naam}}">
-            <p1>E-value:</p1>
+            <p2>E-value:</p2>
             <input type="text" name="evalue" value="{{evalue}}">
-            <p1>(Bit)score:</p1>
+            <p2>(Bit)score:</p2>
             <input type="text" name="score" value="{{score}}"><br>
-            <p1>Coverage:</p1>
+            <p2>Coverage:</p2>
             <input type="text" name="coverage" value="{{coverage}}">
-            <p1>%identity:</p1>
+            <p2>%identity:</p2>
             <input type="text" name="identity" value="{{identity}}">
             <input type="submit" value="Submit">
         </form>
         {{teruggeven|safe}}
     </article>
+
     <script>
         function sortTable(n) {
             var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
@@ -106,5 +107,6 @@
 <footer>
     <p1>Ruben Kampf, Ronald van Kuppevelt en Sanne Post.</p1>
 </footer>
+<br>
 </body>
 </html>
