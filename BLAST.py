@@ -31,8 +31,21 @@ class Database:
         """
         vals = ""
         for value in valuelist:
-            vals += value
-        query = "insert into " + table + "(" + cols + ") values (" + vals + ")"
+            if vals == "":
+                if isinstance(value, str):
+                    vals += "'" + str(value) + "'"
+                else:
+                    vals += str(value)
+            else:
+                if isinstance(value, str):
+                    vals += ", '{}'".format(str(value))
+                else:
+                    vals += ", {}".format(str(value))
+        if len(cols) == 1:
+            query = "insert into {}({}) value({})".format(table, cols,
+                                                          str(vals))
+        else:
+            query = "insert into {}({}) values({})".format(table, cols, vals)
         self.cursor.execute(query)
         self.database.commit()
 
@@ -65,11 +78,11 @@ class Database:
         records = NCBIXML.parse(blast_results)
 
         columns = "header"
-        values = [header]
+        values = [str(header)]
         self.insert("original", columns, values)
 
         columns = "sequence, read, score"  # FASTQ score
-        values = [seq, read, score]
+        values = [str(seq), int(read), int(score)]
         self.insert("sequence", columns, values)
         seq_id = self.cursor.execute(int("select MAX(id) from sequence"))
 
@@ -89,17 +102,20 @@ class Database:
                         return None
 
                     for tax in tax_list:
-                        taxid = self.cursor.execute(int("select MAX(id) from taxonomy"))  # "Real" ID
+                        taxid = self.cursor.execute(int("select MAX(id) from "
+                                                        "taxonomy"))  # "Real" ID
                         columns = "name, TAXONOMY_id"  # Todo: Have to finish taxonomy script for this
-                        values = [tax, taxid]
+                        values = [str(tax), int(taxid)]
                         self.insert("taxonomy", columns, values)
-                    tax_id = self.cursor.execute(int("select MAX(id) from taxonomy"))  # Use for later referencesS
+                    tax_id = self.cursor.execute(int("select MAX(id) from "
+                                                     "taxonomy"))  # Use for later referencesS
 
-                    columns = "name, accessioncode, description, maxscore, bits, evalue, querycoverage, " \
-                              "percidentity, SEQUENCE_id, TAXONOMY_id"
-                    values = [a_name, a_acode, desc, hsp.score, float(hsp.bits),
-                              hsp.expect, ((hsp.query-hsp.query_start)/300), hsp.identity,
-                              seq_id, tax_id]
+                    columns = "name, accessioncode, description, maxscore, " \
+                              "bits, evalue, querycoverage, percidentity, " \
+                              "SEQUENCE_id, TAXONOMY_id"
+                    values = [a_name, a_acode, desc, hsp.score, float(hsp.bits)
+                              , hsp.expect, ((hsp.query-hsp.query_start)/300),
+                              hsp.identity, seq_id, tax_id]
                     self.insert("blast", columns, values)
 
                     # columns = "function"  # Todo: Leave for later? Use accession code to find.
@@ -136,7 +152,7 @@ class BLASTer:
 
 
 def main():
-    file = "Course4_dataset_v03.csv"
+    file = "Course4_dataset_v03.tsv"
 
     readfile(file)
     print("Script done")
@@ -149,52 +165,53 @@ def readfile(data_file):
     """
     db = Database()
     blast = BLASTer()
+    i = 0
+    filename = "results_blast_{}.xml".format(i)
     with open(data_file, "r") as file:
-        tcount = 0
         for line in file:
-            tcount += 1
-            if tcount == 11:  # Remove later
-                print("Testing limit reached, quitting")
-                return None
-            content = line.split(",")
+            i += 1
+            content = line.split("\t")
             header = content[0][:-2]
             read = content[0][-1:]
             score = calc_score(content[2])
             seq = content[1]
-            print("Blasting")  # Debug prints
+            print("Blasting")
             result = blast.blast(seq)
+            db.save_all(header, read, seq, score, result)
             # result = debug_usexmlfile()  # Debug, remove later
             # return None                  # Debug, remove later
             print("Blast complete")
-            with open("blast results xml 1.xml", "w") as wfile:
+
+            with open(filename, "w") as wfile:
                 wfile.writelines(result)
-            # db.insert_all(header, read, seq, score, result)
+            db.save_all(header, read, seq, score, result)
             print("Pausing 3 min")
             sleep(180)
 
-            header = content[3][:-2]
+            i += 1
             read = content[3][-1:]
             seq = content[4]
             score = calc_score(content[5])
             print("Blasting")
             result = blast.blast(seq)
             print("Blast complete")
-            with open("blast results xml 2.xml", "w") as wfile:
+            with open(filename, "w") as wfile:
                 wfile.writelines(result)
             db.save_all(header, read, seq, score, result)
             sleep(180)
+            print("Pausing 3 min")
 
 
-def debug_usexmlfile():  # Debug, remove later
-    with open("blast results xml.xml", "r") as rfile:
-        result = rfile.readlines()
-        result = NCBIXML.parse(result)
-        return result
+# def debug_usexmlfile():  # Debug, remove later
+#     with open("blast results xml.xml", "r") as rfile:
+#         result = rfile.readlines()
+#         result = NCBIXML.parse(result)
+#         return result
 
 
 def calc_score(score):
     """transcribes the FASTQ score string to an integer and returns
-    :param score: FASTQ score string from provided csv file
+    :param score: FASTQ score string from provided tsv file
     :return: calculated FASTQ score integer
     """
     count = 0
