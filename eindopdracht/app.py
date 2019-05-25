@@ -25,24 +25,33 @@ def pagina(filename):
         # """ Als er op zoeken op bacterie naam wordt gebruikt dan wordt de bacterie.html pagina aangeroepen.
         # deze pagina moet nog aangevuld worden met de data die je kruigt als je filterd op het zoekword
         # """
-
+        searchword = ""
         zoekwoord = ""
         teruggeven = ""
+        giveback = ""
         if request.method == 'POST':
             conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
                                            user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
                                            password="ConnectionPWD")
             cursor = conn.cursor()
-            zoekwoord = request.form["zoekwoord"]
+            try:
+                zoekwoord = request.form["zoekwoord"]
+            except KeyError:
+                zoekwoord = ""
+
+            try:
+                searchword = request.form["searchword"]
+            except KeyError:
+                searchword = ""
+
+            if zoekwoord != "":
             # Query die zoekt op het zoekwoord
             cursor.execute("""select blast.name, blast.accessioncode, functionality.function from blast join functionint
-                              on blast.id = functionint.BLAST_id join functionality on functionint.functionality_id = 
-                              functionality.id where blast.name like '%" + zoekwoord + "%'""")
+                                  on blast.id = functionint.BLAST_id join functionality on functionint.functionality_id = 
+                                  functionality.id where blast.name like '%" + zoekwoord + "%'""")
             records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
-            cursor.close()
-            conn.close()
-            # maakt een tabel van de gevonden data
-            teruggeven = ("<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+            teruggeven = ("<p2>Gevonden data van het zoeken op protiën naam:</p2><br>\n"
+                          + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                           + "   <tr>\n"
                           + "   <th onclick=\"sortTable(0)\">Naam</th>\n"
                           + "   <th onclick=\"sortTable(1)\">Accessiecode:</th>\n"
@@ -56,7 +65,32 @@ def pagina(filename):
                     teruggeven = teruggeven + "<td>" + (row[2]) + "</td>"
                     teruggeven = teruggeven + "</tr>"
             teruggeven = teruggeven + "</table>"
-        return render_template("bacterie.html", teruggeven=teruggeven, zoekwoord=zoekwoord)
+            if searchword != "":
+                cursor.execute("""select taxonomy.name, blast.name from taxonomy join blast on blast.TAXONOMY_id = 
+                                  taxonomy.id join taxonomy b on b.TAXONOMY_id = taxonomy.id where taxonomy.name like 
+                                  '%" + searchword + "%'""")
+                data = cursor.fetchall()
+                cursor.close()
+                conn.close()
+                # maakt een tabel van de gevonden data
+                giveback = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
+                            + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+                            + "   <tr>\n"
+                            + "   <th onclick=\"sortTable(0)\">Naam</th>\n"
+                            + "   <th onclick=\"sortTable(1)\">Taxonomy</th>\n"
+                            + "   </tr>")
+
+                for a in data:
+                    for i in a:
+                        giveback = giveback + "<tr>"
+                        giveback = giveback + "<td>" + (i[0]) + "</td>"
+                        giveback = giveback + "<td>" + (i[1, 2]) + "</td>"
+                        giveback = giveback + "</tr>"
+
+                giveback = giveback + "</table>"
+
+        return render_template("bacterie.html", teruggeven=teruggeven, zoekwoord=zoekwoord, giveback=giveback,
+                               searchword=searchword)
 
     elif filename == "tabel.html":
         """"""
