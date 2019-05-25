@@ -37,11 +37,15 @@ class Database:
         self.database.commit()
 
     def taxonomy(self, a_acode):
+        """Function for retrieving taxonomy data from the NCBI-taxonomy
+        database
+        :param a_acode: accession code recorded in a hsp
+        :return: returns an ordered list containing the organisms taxonomy
+        """
         search = Entrez.efetch(id=a_acode, db="protein", retmode="xml")
         data = Entrez.read(search)
         speciesname = data[0].get('GBSeq_organism')
-        search = Entrez.esearch(term=speciesname, db="taxonomy",
-                                retmode="xml")
+        search = Entrez.esearch(term=speciesname, db="taxonomy", retmode="xml")
         record = Entrez.read(search)
         taxid = record['IdList'][0]
         search = Entrez.efetch(id=taxid, db="taxonomy", retmode="xml")
@@ -58,7 +62,6 @@ class Database:
         :param score: FASTQ score to insert
         :param blast_results: Rest of data to insert as BLAST XML results
         """
-
         records = NCBIXML.parse(blast_results)
 
         columns = "header"
@@ -153,7 +156,7 @@ def readfile(data_file):
             if tcount == 11:  # Remove later
                 print("Testing limit reached, quitting")
                 return None
-            content = line.split("\t")
+            content = line.split(",")
             header = content[0][:-2]
             read = content[0][-1:]
             score = calc_score(content[2])
@@ -178,7 +181,7 @@ def readfile(data_file):
             print("Blast complete")
             with open("blast results xml 2.xml", "w") as wfile:
                 wfile.writelines(result)
-            # db.insert_all(header, read, seq, score result)
+            db.save_all(header, read, seq, score, result)
             sleep(180)
 
 
