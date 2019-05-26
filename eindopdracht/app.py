@@ -45,26 +45,26 @@ def pagina(filename):
                 searchword = ""
 
             if zoekwoord != "":
-            # Query die zoekt op het zoekwoord
-            cursor.execute("""select blast.name, blast.accessioncode, functionality.function from blast join functionint
-                                  on blast.id = functionint.BLAST_id join functionality on functionint.functionality_id = 
-                                  functionality.id where blast.name like '%" + zoekwoord + "%'""")
-            records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
-            teruggeven = ("<p2>Gevonden data van het zoeken op protiën naam:</p2><br>\n"
-                          + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
-                          + "   <tr>\n"
-                          + "   <th onclick=\"sortTable(0)\">Naam</th>\n"
-                          + "   <th onclick=\"sortTable(1)\">Accessiecode:</th>\n"
-                          + "   <th onclick=\"sortTable(2)\">Functie:</th>\n"
-                          + "   </tr>")
-            for rows in records:
-                for row in rows:
-                    teruggeven = teruggeven + "<tr>"
-                    teruggeven = teruggeven + "<td>" + (row[0]) + "</td>"
-                    teruggeven = teruggeven + "<td>" + (row[1]) + "</td>"
-                    teruggeven = teruggeven + "<td>" + (row[2]) + "</td>"
-                    teruggeven = teruggeven + "</tr>"
-            teruggeven = teruggeven + "</table>"
+                # Query die zoekt op het zoekwoord
+                cursor.execute("""select blast.name, blast.accessioncode, functionality.function from blast join functionint
+                                      on blast.id = functionint.BLAST_id join functionality on functionint.functionality_id = 
+                                      functionality.id where blast.name like '%" + zoekwoord + "%'""")
+                records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
+                teruggeven = ("<p2>Gevonden data van het zoeken op protiën naam:</p2><br>\n"
+                              + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+                              + "   <tr>\n"
+                              + "   <th onclick=\"sortTable(0)\">Naam</th>\n"
+                              + "   <th onclick=\"sortTable(1)\">Accessiecode:</th>\n"
+                              + "   <th onclick=\"sortTable(2)\">Functie:</th>\n"
+                              + "   </tr>")
+                for rows in records:
+                    for row in rows:
+                        teruggeven = teruggeven + "<tr>"
+                        teruggeven = teruggeven + "<td>" + (row[0]) + "</td>"
+                        teruggeven = teruggeven + "<td>" + (row[1]) + "</td>"
+                        teruggeven = teruggeven + "<td>" + (row[2]) + "</td>"
+                        teruggeven = teruggeven + "</tr>"
+                teruggeven = teruggeven + "</table>"
             if searchword != "":
                 cursor.execute("""select taxonomy.name, blast.name from taxonomy join blast on blast.TAXONOMY_id = 
                                   taxonomy.id join taxonomy b on b.TAXONOMY_id = taxonomy.id where taxonomy.name like 

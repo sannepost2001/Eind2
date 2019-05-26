@@ -40,14 +40,14 @@ class Database:
     #     self.database.commit()
     # Omitted for ease of use
 
-    def taxonomy(self, a_acode):
+    def taxonomy(self, accession):
         """Function for retrieving taxonomy data from the NCBI-taxonomy
         database
-        :param a_acode: accession code recorded in a hsp
+        :param accession: accession code recorded in a hsp
         :return: returns an ordered list containing the organisms taxonomy
         """
         Entrez.email = "Ruben0995@gmail.com"
-        search = Entrez.efetch(id=a_acode, db="protein", retmode="xml")
+        search = Entrez.efetch(id=accession, db="protein", retmode="xml")
         data = Entrez.read(search)
         speciesname = data[0].get('GBSeq_organism')
         search = Entrez.esearch(term=speciesname, db="taxonomy", retmode="xml")
@@ -60,11 +60,21 @@ class Database:
         return data
 
     def save_header(self, header):
+        """
+        :param header:
+        :return:
+        """
         query = "insert into original(header) value('{}')".format(header)
         self.cursor.execute(query)
         self.database.commit()
 
     def save_sequence(self, seq, read, score):
+        """
+        :param seq:
+        :param read:
+        :param score:
+        :return:
+        """
         print(seq, read, score)
         self.cursor.execute("select max(id) from original")
         og_id = self.cursor.fetchone()[0]
@@ -74,19 +84,14 @@ class Database:
         self.database.commit()
 
     def save_blast(self, filename, seq_id):
-        """Insert all data into database
-        :param header: Header to insert
-        :param read: Read to insert
-        :param seq: Sequence to insert
-        :param score: FASTQ score to insert
-        :param blast_results: Rest of data to insert as BLAST XML results
+        """
+        :param filename:
+        :param seq_id:
+        :return:
         """
         result_handle = open(filename, "r")
         blast_records = NCBIXML.parse(result_handle)
-        y = 0
         for blast_record in blast_records:
-            y += 1
-            print(y)
             x = 0
             for alignment in blast_record.alignments:
                 x += 1
@@ -136,6 +141,9 @@ class Database:
                     self.database.commit()
 
     def save_functionality(self):
+        """
+        :return:
+        """
         return None
 
 
@@ -151,17 +159,25 @@ class BLASTer:
 
     def blast(self, filename, seq, seq_id):
         """
-        Put a sequence in BLAST
-        :param seq: Sequence to use
-        :return: Returns BLAST results
+        :param filename:
+        :param seq:
+        :param seq_id:
+        :return:
         """
-        result_handle = qblast(self.blastmethod, self.database, seq,
-                        format_type=self.format, expect=self.evalue,
-                        matrix_name=self.matrix, hitlist_size=10)
-        file = open(filename, "w+")
-        result_xml = result_handle.readlines()
-        file.writelines(result_xml)
-        file.close()
+        try:
+            open(filename, 'r')
+            return False
+        except FileNotFoundError:
+            print("File not found starting blast")
+            result_handle = qblast(self.blastmethod, self.database, seq,
+                            format_type=self.format, expect=self.evalue,
+                            matrix_name=self.matrix, hitlist_size=10)
+            file = open(filename, "w+")
+            result_xml = result_handle.readlines()
+            file.writelines(result_xml)
+            file.close()
+            print("blast complete")
+            return True
 
 
 
@@ -169,8 +185,17 @@ class BLASTer:
 
 def main():
     file = "Course4_dataset_v03.tsv"
+    if readfile(file):
+        print("saving file")
+    else:
+        db = Database()
+        db.cursor.execute("select sequence from sequence")
+        sequences = db.cursor.fetchall()
+        for i, sequence in enumerate(sequences, 1):
+            print("Sequence number {}".format(i))
+            BLAST(sequence[0])
 
-    readfile(file)
+
     print("Script done")
 
 
@@ -205,26 +230,29 @@ def readfile(data_file):
                 db.save_sequence(seq, read, score)
                 print("sequence saved")
     else:
-        db.cursor.execute("select sequence from sequence")
-        sequences = db.cursor.fetchall()
-        for sequence in sequences:
-            BLAST(sequence[0])
+        return False
 
 
 def BLAST(seq):
+    """
+    :param seq:
+    :return:
+    """
     db = Database()
     toblast = BLASTer()
     db.cursor.execute("select id from sequence where sequence='{}'".format(seq))
     seq_id = db.cursor.fetchone()[0]
     filename = "results_blast_{}.xml".format(seq_id)
-    print("blasting")
-    toblast.blast(filename, seq, seq_id)
-    print("blast complete")
 
-    db.save_blast(filename, seq_id)
-    print("blast saved")
-    print("Pausing 3 min")
-    sleep(180)
+    if toblast.blast(filename, seq, seq_id):
+        db.save_blast(filename, seq_id)
+        print("blast saved")
+        print("Pausing 3 min")
+        sleep(180)
+    else:
+        print("Inserting BLAST data")
+        db.save_blast(filename, seq_id)
+        print("Data inserted")
 
 
 def calc_score(score):
@@ -245,7 +273,6 @@ def calc_score(score):
 
 
 main()
-
 
 """ Useful:
 https://biopython.readthedocs.io/en/latest/Tutorial/chapter_blast.html#parsing-blast-output
