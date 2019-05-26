@@ -82,50 +82,49 @@ class Database:
         """
         result_handle = open(filename, "r")
         blast_records = NCBIXML.parse(result_handle)
-
         for blast_record in blast_records:
-            print("checkpoint")
-            # Todo: create method for saving taxonomy data AND recreate blast insert
-            # for a, alignment in enumerate(blast_record.alignments):
-            #     if a == 10:
-            #         print("10 results")
-            #         return None
-            #
-            #     title = alignment.title.split("|")
-            #     a_name = title[2]  # Example title: >gb|AF283004.1|AF283004 Arabidopsis thaliana etc etc
-            #     a_acode = title[1]
-            #     tax_list = self.taxonomy(a_acode)
-            #     desc = blast_record.descriptions[a].title
-            #     for tax in tax_list:
-            #         self.cursor.execute("select id from taxonomy where "
-            #                             "name='{}'".format(tax))
-            #         tax_id = self.cursor.fetchone()[0]
-            #         if not tax_id:
-            #             query = "insert into taxonomy(name) " \
-            #                     "value('{}')".format(tax)
-            #             self.cursor.execute(query)
-            #         else:
-            #             query = "insert into taxonomy(name, TAXONOMY_id) " \
-            #                     "values('{}', {})".format(tax, tax_id)
-            #             self.cursor.execute(query)
-            #
-            #     for i, hsp in enumerate(alignment.hsps):  # Limit to 10 results?
-            #         columns = "name, accessioncode, description, maxscore, " \
-            #                   "bits, evalue, querycoverage, percidentity, " \
-            #                   "SEQUENCE_id, TAXONOMY_id"
-            #         values = ("'" + a_name + "'", "'" + a_acode + "'",
-            #                   "'" + desc + "'", hsp.score, float(hsp.bits),
-            #                   hsp.expect, (hsp.query-hsp.query_start)/300,
-            #                   hsp.identity, seq_id, tax_id)
-            #         self.insert("blast", columns, values)
+            for alignment in blast_record.alignments:
+                for i, hsp in enumerate(alignment.hsps):
+                    if i == 10:
+                        return None
+                    accession = alignment.accession
+                    tax_list = self.taxonomy(accession)
+                    for tax in tax_list:
+                        self.cursor.execute("select id from taxonomy where "
+                                            "name='{}'".format(tax))
+                        tax_id = self.cursor.fetchone()
+                        if tax_id is None:
+                            query = "insert into taxonomy(name) " \
+                                    "value('{}')".format(tax)
+                            self.cursor.execute(query)
+                        else:
+                            query = "insert into taxonomy(name, TAXONOMY_id) "\
+                                    "values('{}', {})".format(tax, tax_id[0])
+                            self.cursor.execute(query)
+                    query = "select id from taxonomy " \
+                            "where name={}".format(tax_list[-1])
+                    self.cursor.execute(query)
+                    tax_id = self.cursor.fetchone()[0]
 
-                    # columns = "function"  # Todo: Leave for later? Use accession code to find.
-                    # values = []
-                    # self.insert("functionality", columns, values)
+                    name = alignment.hit_def.split(" [")[0]
+                    description = alignment.hit_def
+                    maxscore = hsp.score
+                    bits = hsp.bits
+                    evalue = hsp.expect
+                    querycoverage = (hsp.query_end - hsp.query_start) / 3
+                    percidentity = hsp.positives / len(hsp.sbjct) * 100
+                    blast_query = """insert into blast(name, accessioncode, 
+                    description, maxscore, bits, evalue, querycoverage, 
+                    percidentity, SEQUENCE_id, TAXONOMY_id) values('{}', '{}', 
+                    '{}', {}, {}, {}, {}, {}, {}, {})
+                    """.format(name, accession, description, maxscore, bits,
+                               evalue, querycoverage, percidentity, seq_id,
+                               tax_id)
+                    self.cursor.execute(blast_query)
+                    self.database.commit()
 
-            # columns = "FUNCTIONALITY_id, BLAST_id"  # Todo: Also query for right ID's
-            # values = []
-            # self.insert("functionint", columns, values)
+    def save_functionality(self):
+        return None
 
 
 class BLASTer:
