@@ -46,6 +46,7 @@ class Database:
         :param a_acode: accession code recorded in a hsp
         :return: returns an ordered list containing the organisms taxonomy
         """
+        Entrez.email = "Ruben0995@gmail.com"
         search = Entrez.efetch(id=a_acode, db="protein", retmode="xml")
         data = Entrez.read(search)
         speciesname = data[0].get('GBSeq_organism')
@@ -55,7 +56,7 @@ class Database:
         search = Entrez.efetch(id=taxid, db="taxonomy", retmode="xml")
         data = Entrez.read(search)
         data = data[0].get('Lineage').split('; ')
-        data.append(speciesname.split(" ")[1])
+        data.append(speciesname.split(" ")[-1])
         return data
 
     def save_header(self, header):
@@ -82,25 +83,36 @@ class Database:
         """
         result_handle = open(filename, "r")
         blast_records = NCBIXML.parse(result_handle)
+        y = 0
         for blast_record in blast_records:
+            y += 1
+            print(y)
+            x = 0
             for alignment in blast_record.alignments:
-                for i, hsp in enumerate(alignment.hsps):
-                    if i == 10:
-                        return None
+                x += 1
+                print("hit {}".format(x))
+                for hsp in alignment.hsps:
                     accession = alignment.accession
                     tax_list = self.taxonomy(accession)
+                    previous_tax = tax_list[0]
                     for tax in tax_list:
                         self.cursor.execute("select id from taxonomy where "
                                             "name='{}'".format(tax))
                         tax_id = self.cursor.fetchone()
-                        if tax_id is None:
+                        query = "select id from taxonomy where name='{}'" \
+                            .format(previous_tax)
+                        self.cursor.execute(query)
+                        previous_tax_id = self.cursor.fetchone()
+                        if tax_id is None and previous_tax_id is None:
                             query = "insert into taxonomy(name) " \
                                     "value('{}')".format(tax)
                             self.cursor.execute(query)
-                        else:
-                            query = "insert into taxonomy(name, TAXONOMY_id) "\
-                                    "values('{}', {})".format(tax, tax_id[0])
+                        elif tax_id is None and previous_tax_id:
+                            query = "insert into taxonomy(name, TAXONOMY_id)" \
+                                    " values('{}', {})".format(tax,
+                                                               previous_tax_id[0])
                             self.cursor.execute(query)
+                        previous_tax = tax
                     query = "select id from taxonomy " \
                             "where name='{}'".format(tax_list[-1])
                     self.cursor.execute(query)
@@ -135,6 +147,7 @@ class BLASTer:
         self.evalue = 0.04
         self.matrix = "BLOSUM62"
         self.blastmethod = "blastx"
+        self.hitlist_size= 10
 
     def blast(self, filename, seq, seq_id):
         """
@@ -144,7 +157,7 @@ class BLASTer:
         """
         result_handle = qblast(self.blastmethod, self.database, seq,
                         format_type=self.format, expect=self.evalue,
-                        matrix_name=self.matrix)
+                        matrix_name=self.matrix, hitlist_size=10)
         file = open(filename, "w+")
         result_xml = result_handle.readlines()
         file.writelines(result_xml)
@@ -205,7 +218,7 @@ def BLAST(seq):
     seq_id = db.cursor.fetchone()[0]
     filename = "results_blast_{}.xml".format(seq_id)
     print("blasting")
-    records = toblast.blast(filename, seq, seq_id)
+    toblast.blast(filename, seq, seq_id)
     print("blast complete")
 
     db.save_blast(filename, seq_id)
