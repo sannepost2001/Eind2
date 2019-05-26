@@ -102,7 +102,7 @@ class Database:
                                     "values('{}', {})".format(tax, tax_id[0])
                             self.cursor.execute(query)
                     query = "select id from taxonomy " \
-                            "where name={}".format(tax_list[-1])
+                            "where name='{}'".format(tax_list[-1])
                     self.cursor.execute(query)
                     tax_id = self.cursor.fetchone()[0]
 
