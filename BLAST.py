@@ -101,8 +101,8 @@ class Database:
                     tax_list = self.taxonomy(accession)
                     previous_tax = tax_list[0]
                     for tax in tax_list:
-                        self.cursor.execute("select id from taxonomy where"
-                                            " name='{}'".format(tax))
+                        self.cursor.execute("select id from taxonomy where "
+                                            "name='{}'".format(tax))
                         tax_id = self.cursor.fetchone()
                         query = "select id from taxonomy where name='{}'" \
                             .format(previous_tax)
@@ -113,9 +113,9 @@ class Database:
                                     "value('{}')".format(tax)
                             self.cursor.execute(query)
                         elif tax_id is None and previous_tax_id:
-                            query = "insert into taxonomy(name, " \
-                                    "TAXONOMY_id) values('{}', " \
-                                    "{})".format(tax, previous_tax_id[0])
+                            query = "insert into taxonomy(name, TAXONOMY_id)" \
+                                    " values('{}', {})".format(tax,
+                                                               previous_tax_id[0])
                             self.cursor.execute(query)
                         previous_tax = tax
                     query = "select id from taxonomy " \
@@ -132,29 +132,15 @@ class Database:
                     percidentity = hsp.positives / len(hsp.sbjct) * 100
                     blast_query = """insert into blast(name, accessioncode, 
                     description, maxscore, bits, evalue, querycoverage, 
-                    percidentity, SEQUENCE_id, TAXONOMY_id) values('{}', 
-                    '{}', '{}', {}, {}, {}, {}, {}, {}, {})
-                    """.format(name, accession, description, maxscore,
-                               bits, evalue, querycoverage, percidentity,
-                               seq_id, tax_id)
+                    percidentity, SEQUENCE_id, TAXONOMY_id) values('{}', '{}', 
+                    '{}', {}, {}, {}, {}, {}, {}, {})
+                    """.format(name, accession, description, maxscore, bits,
+                               evalue, querycoverage, percidentity, seq_id,
+                               tax_id)
                     self.cursor.execute(blast_query)
                     self.database.commit()
 
-    def test(self, filename):
-        result_handle = open(filename, "r")
-        blast_records = NCBIXML.parse(result_handle)
-        x = 0
-        for blast_record in blast_records:
-            for alignment in blast_record.alignments:
-                x += 1
-        if x != 10:
-            print("Not enough hits")
-            return False
-        else:
-            print("Enough hits")
-            return True
-
-    def save_functionality(self): #Todo: make functional functionality inserts
+    def save_functionality(self):
         """
         :return:
         """
@@ -168,56 +154,49 @@ class BLASTer:
         self.format = "XML"
         self.evalue = 0.04
         self.matrix = "BLOSUM62"
-        self.blastmethod = ["blastx", "tblastx"]
+        self.blastmethod = "blastx"
+        self.hitlist_size= 10
 
-    def blast(self, filename, seq, blasted=False, bln=True):
+    def blast(self, filename, seq, seq_id):
         """
         :param filename:
         :param seq:
-        :param blasted:
-        :param bln:
+        :param seq_id:
         :return:
         """
         try:
             open(filename, 'r')
-            if blasted and bln:
-                return False
-            elif not blasted and not bln:
-                result_handle = qblast(self.blastmethod[1], self.database, seq,
-                                       format_type=self.format,
-                                       expect=self.evalue,
-                                       matrix_name=self.matrix,
-                                       hitlist_size=10)
-                file = open(filename, "w+")
-                result_xml = result_handle.readlines()
-                print(result_xml)
-                file.writelines(result_xml)
+            return False
         except FileNotFoundError:
             print("File not found starting blast")
-            if not blasted:
-                result_handle = qblast(self.blastmethod[0], self.database, seq,
-                                       format_type=self.format,
-                                       expect=self.evalue,
-                                       matrix_name=self.matrix,
-                                       hitlist_size=10)
-                file = open(filename, "w+")
-                result_xml = result_handle.readlines()
-                print(result_xml)
-                file.writelines(result_xml)
-            else:
-
-                result_handle = qblast(self.blastmethod[1], self.database, seq,
-                                       format_type=self.format,
-                                       expect=self.evalue,
-                                       matrix_name=self.matrix,
-                                       hitlist_size=10)
-                file = open(filename, "w+")
-                result_xml = result_handle.readlines()
-                print(result_xml)
-                file.writelines(result_xml)
-            open(filename)
+            result_handle = qblast(self.blastmethod, self.database, seq,
+                            format_type=self.format, expect=self.evalue,
+                            matrix_name=self.matrix, hitlist_size=10)
+            file = open(filename, "w+")
+            result_xml = result_handle.readlines()
+            file.writelines(result_xml)
+            file.close()
             print("blast complete")
             return True
+
+
+
+
+
+def main():
+    file = "Course4_dataset_v03.tsv"
+    if readfile(file):
+        print("saving file")
+    else:
+        db = Database()
+        db.cursor.execute("select sequence from sequence")
+        sequences = db.cursor.fetchall()
+        for i, sequence in enumerate(sequences, 1):
+            print("Sequence number {}".format(i))
+            BLAST(sequence[0])
+
+
+    print("Script done")
 
 
 def readfile(data_file):
@@ -226,6 +205,7 @@ def readfile(data_file):
     :return:
     """
     db = Database()
+    blast = BLASTer()
     i = 0
     db.cursor.execute("select count(sequence) from sequence")
     count = db.cursor.fetchone()[0]
@@ -264,30 +244,15 @@ def BLAST(seq):
     seq_id = db.cursor.fetchone()[0]
     filename = "results_blast_{}.xml".format(seq_id)
 
-    if toblast.blast(filename, seq):
-        bln = db.test(filename)
-        if bln:
-            print("inserting BLAST data")
-            db.save_blast(filename, seq_id)
-            print("Data inserted")
-        else:
-            toblast.blast(filename, seq, True, bln)
-            print("Inserting BLAST data")
-            db.save_blast(filename, seq_id)
-            print("Data inserted")
+    if toblast.blast(filename, seq, seq_id):
+        db.save_blast(filename, seq_id)
+        print("blast saved")
         print("Pausing 3 min")
         sleep(180)
     else:
-        bln = db.test(filename)
-        if bln:
-            print("Inserting BLAST data")
-            db.save_blast(filename, seq_id)
-            print("Data inserted")
-        else:
-            toblast.blast(filename, seq, True, bln)
-            print("Inserting BLAST data")
-            db.save_blast(filename, seq_id)
-            print("Data inserted")
+        print("Inserting BLAST data")
+        db.save_blast(filename, seq_id)
+        print("Data inserted")
 
 
 def calc_score(score):
@@ -305,20 +270,6 @@ def calc_score(score):
             if letter == scorelist[i]:
                 count += i
     return count
-
-
-def main():
-    file = "Course4_dataset_v03.tsv"
-    if readfile(file):
-        print("saving file")
-    else:
-        db = Database()
-        db.cursor.execute("select sequence from sequence")
-        sequences = db.cursor.fetchall()
-        for i, sequence in enumerate(sequences, 1):
-            print("Sequence number {}".format(i))
-            BLAST(sequence[0])
-    print("Script done")
 
 
 main()
