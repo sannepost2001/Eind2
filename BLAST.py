@@ -5,6 +5,7 @@ from time import sleep
 from Bio.Blast.NCBIWWW import qblast
 from Bio.Blast import NCBIXML
 from Bio import Entrez
+from Bio import SearchIO
 
 # # #   To-do list
 # Insert statements - Data from BLAST objects (Done)
@@ -20,34 +21,24 @@ class Database:
         passw = "ConnectionPWD"
         dbname = "kxxxf"
         self.database = mysql.connector.connect(host=host, user=user, password=passw, db=dbname)
-        self.cursor = self.database.cursor()
+        self.cursor = self.database.cursor(buffered=True)
 
-    def insert(self, table, cols, valuelist):
-        self.database.commit()
-        """Insert something into database
-        :param table:
-        :param cols:
-        :param valuelist:
-        """
-        vals = ""
-        for value in valuelist:
-            if vals == "":
-                if isinstance(value, str):
-                    vals += "'" + str(value) + "'"
-                else:
-                    vals += str(value)
-            else:
-                if isinstance(value, str):
-                    vals += ", '{}'".format(str(value))
-                else:
-                    vals += ", {}".format(str(value))
-        if len(cols) == 1:
-            query = "insert into {}({}) value({})".format(table, cols,
-                                                          str(vals))
-        else:
-            query = "insert into {}({}) values({})".format(table, cols, vals)
-        self.cursor.execute(query)
-        self.database.commit()
+    # def insert(self, table, cols, valuelist):
+    #     self.database.commit()
+    #     """Insert something into database
+    #     :param table:
+    #     :param cols:
+    #     :param valuelist:
+    #     """
+    #     if isinstance(valuelist, str):
+    #         query = "insert into {}({}) value({})".format(table, cols,
+    #                                                       valuelist)
+    #     else:
+    #         query = "insert into {}({}) values({})".format(table, cols,
+    #                                                      valuelist)
+    #     self.cursor.execute(query)
+    #     self.database.commit()
+    # Omitted for ease of use
 
     def taxonomy(self, a_acode):
         """Function for retrieving taxonomy data from the NCBI-taxonomy
@@ -67,7 +58,21 @@ class Database:
         data.append(speciesname.split(" ")[1])
         return data
 
-    def save_all(self, header, read, seq, score, blast_results):
+    def save_header(self, header):
+        query = "insert into original(header) value('{}')".format(header)
+        self.cursor.execute(query)
+        self.database.commit()
+
+    def save_sequence(self, seq, read, score):
+        print(seq, read, score)
+        self.cursor.execute("select max(id) from original")
+        og_id = self.cursor.fetchone()[0]
+        query = "insert into sequence(sequence, readnr, score, ORIGINAL_id)" \
+                "values('{}', {}, {}, {})".format(seq, read, score, og_id)
+        self.cursor.execute(query)
+        self.database.commit()
+
+    def save_blast(self, filename, seq_id):
         """Insert all data into database
         :param header: Header to insert
         :param read: Read to insert
@@ -75,48 +80,43 @@ class Database:
         :param score: FASTQ score to insert
         :param blast_results: Rest of data to insert as BLAST XML results
         """
-        records = NCBIXML.parse(blast_results)
+        result_handle = open(filename, "r")
+        blast_records = NCBIXML.parse(result_handle)
 
-        columns = "header"
-        values = [str(header)]
-        self.insert("original", columns, values)
-
-        columns = "sequence, read, score"  # FASTQ score
-        values = [str(seq), int(read), int(score)]
-        self.insert("sequence", columns, values)
-        seq_id = self.cursor.execute(int("select MAX(id) from sequence"))
-
-        for blast_record in records:
-            for a, alignment in enumerate(blast_record.alignments):
-                if a == 10:
-                    print("10 results")
-                    return None
-                title = alignment.title.split("|")
-                a_name = title[2]  # Example title: >gb|AF283004.1|AF283004 Arabidopsis thaliana etc etc
-                a_acode = title[1]
-                tax_list = self.taxonomy(a_acode)
-                desc = blast_record.descriptions[a].title
-                for i, hsp in enumerate(alignment.hsps):  # Limit to 10 results?
-                    if i == 10:
-                        print("10 results inserted.")
-                        return None
-
-                    for tax in tax_list:
-                        taxid = self.cursor.execute(int("select MAX(id) from "
-                                                        "taxonomy"))  # "Real" ID
-                        columns = "name, TAXONOMY_id"  # Todo: Have to finish taxonomy script for this
-                        values = [str(tax), int(taxid)]
-                        self.insert("taxonomy", columns, values)
-                    tax_id = self.cursor.execute(int("select MAX(id) from "
-                                                     "taxonomy"))  # Use for later referencesS
-
-                    columns = "name, accessioncode, description, maxscore, " \
-                              "bits, evalue, querycoverage, percidentity, " \
-                              "SEQUENCE_id, TAXONOMY_id"
-                    values = [a_name, a_acode, desc, hsp.score, float(hsp.bits)
-                              , hsp.expect, ((hsp.query-hsp.query_start)/300),
-                              hsp.identity, seq_id, tax_id]
-                    self.insert("blast", columns, values)
+        for blast_record in blast_records:
+            print(SearchIO.HSP.hit_id())
+            # for a, alignment in enumerate(blast_record.alignments):
+            #     if a == 10:
+            #         print("10 results")
+            #         return None
+            #
+            #     title = alignment.title.split("|")
+            #     a_name = title[2]  # Example title: >gb|AF283004.1|AF283004 Arabidopsis thaliana etc etc
+            #     a_acode = title[1]
+            #     tax_list = self.taxonomy(a_acode)
+            #     desc = blast_record.descriptions[a].title
+            #     for tax in tax_list:
+            #         self.cursor.execute("select id from taxonomy where "
+            #                             "name='{}'".format(tax))
+            #         tax_id = self.cursor.fetchone()[0]
+            #         if not tax_id:
+            #             query = "insert into taxonomy(name) " \
+            #                     "value('{}')".format(tax)
+            #             self.cursor.execute(query)
+            #         else:
+            #             query = "insert into taxonomy(name, TAXONOMY_id) " \
+            #                     "values('{}', {})".format(tax, tax_id)
+            #             self.cursor.execute(query)
+            #
+            #     for i, hsp in enumerate(alignment.hsps):  # Limit to 10 results?
+            #         columns = "name, accessioncode, description, maxscore, " \
+            #                   "bits, evalue, querycoverage, percidentity, " \
+            #                   "SEQUENCE_id, TAXONOMY_id"
+            #         values = ("'" + a_name + "'", "'" + a_acode + "'",
+            #                   "'" + desc + "'", hsp.score, float(hsp.bits),
+            #                   hsp.expect, (hsp.query-hsp.query_start)/300,
+            #                   hsp.identity, seq_id, tax_id)
+            #         self.insert("blast", columns, values)
 
                     # columns = "function"  # Todo: Leave for later? Use accession code to find.
                     # values = []
@@ -134,21 +134,24 @@ class BLASTer:
         self.format = "XML"
         self.evalue = 0.04
         self.matrix = "BLOSUM62"
-        self.blastmethods = ["blastx", "tblastx"]
+        self.blastmethod = "blastx"
 
-    def blast(self, seq):
+    def blast(self, filename, seq, seq_id):
         """
         Put a sequence in BLAST
         :param seq: Sequence to use
         :return: Returns BLAST results
         """
-        for i, blastmethod in enumerate(self.blastmethods):
-            result = qblast(self.blastmethods[i], self.database, seq,
-                            format_type=self.format, expect=self.evalue,
-                            matrix_name=self.matrix)
-            if result:
-                self.seqs_blasted += 1
-                return result
+        result_handle = qblast(self.blastmethod, self.database, seq,
+                        format_type=self.format, expect=self.evalue,
+                        matrix_name=self.matrix)
+        file = open(filename, "w+")
+        result_xml = result_handle.readlines()
+        file.writelines(result_xml)
+        file.close()
+
+
+
 
 
 def main():
@@ -166,47 +169,49 @@ def readfile(data_file):
     db = Database()
     blast = BLASTer()
     i = 0
-    filename = "results_blast_{}.xml".format(i)
-    with open(data_file, "r") as file:
-        for line in file:
-            i += 1
-            content = line.split("\t")
-            header = content[0][:-2]
-            read = content[0][-1:]
-            score = calc_score(content[2])
-            seq = content[1]
-            print("Blasting")
-            result = blast.blast(seq)
-            db.save_all(header, read, seq, score, result)
-            # result = debug_usexmlfile()  # Debug, remove later
-            # return None                  # Debug, remove later
-            print("Blast complete")
+    db.cursor.execute("select count(sequence) from sequence")
+    count = db.cursor.fetchone()[0]
+    if count != 200:
+        with open(data_file, "r") as file:
+            for line in file:
+                i += 1
+                content = line.split("\t")
+                header = content[0][:-2]
+                db.save_header(header)
+                print("header saved")
 
-            with open(filename, "w") as wfile:
-                wfile.writelines(result)
-            db.save_all(header, read, seq, score, result)
-            print("Pausing 3 min")
-            sleep(180)
-
-            i += 1
-            read = content[3][-1:]
-            seq = content[4]
-            score = calc_score(content[5])
-            print("Blasting")
-            result = blast.blast(seq)
-            print("Blast complete")
-            with open(filename, "w") as wfile:
-                wfile.writelines(result)
-            db.save_all(header, read, seq, score, result)
-            sleep(180)
-            print("Pausing 3 min")
+                read = content[0][-1:]
+                score = calc_score(content[2])
+                seq = content[1]
+                db.save_sequence(seq, read, score)
+                print("sequence saved")
+                i += 1
+                read = content[3][-1:]
+                seq = content[4]
+                score = calc_score(content[5])
+                db.save_sequence(seq, read, score)
+                print("sequence saved")
+    else:
+        db.cursor.execute("select sequence from sequence")
+        sequences = db.cursor.fetchall()
+        for sequence in sequences:
+            BLAST(sequence[0])
 
 
-# def debug_usexmlfile():  # Debug, remove later
-#     with open("blast results xml.xml", "r") as rfile:
-#         result = rfile.readlines()
-#         result = NCBIXML.parse(result)
-#         return result
+def BLAST(seq):
+    db = Database()
+    toblast = BLASTer()
+    db.cursor.execute("select id from sequence where sequence='{}'".format(seq))
+    seq_id = db.cursor.fetchone()[0]
+    filename = "results_blast_{}.xml".format(seq_id)
+    print("blasting")
+    records = toblast.blast(filename, seq, seq_id)
+    print("blast complete")
+
+    db.save_blast(filename, seq_id)
+    print("blast saved")
+    print("Pausing 3 min")
+    sleep(180)
 
 
 def calc_score(score):
