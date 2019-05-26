@@ -84,7 +84,8 @@ class Database:
         blast_records = NCBIXML.parse(result_handle)
 
         for blast_record in blast_records:
-            print(SearchIO.HSP.hit_id())
+            print("checkpoint")
+            # Todo: create method for saving taxonomy data AND recreate blast insert
             # for a, alignment in enumerate(blast_record.alignments):
             #     if a == 10:
             #         print("10 results")
