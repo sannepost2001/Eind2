@@ -2,12 +2,11 @@
 # 18-5-19
 # Website champignon compost
 import mysql.connector
+from Bio.Blast import NCBIWWW, NCBIXML
 from flask import Flask, request, render_template, make_response
 
 app = Flask(__name__)
-conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
-                               user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
-                               password="ConnectionPWD")
+
 
 @app.route('/')
 def home():
@@ -18,7 +17,7 @@ def home():
 
 
 @app.route('/<path:filename>', methods=['GET', 'POST'])
-def pagina(filename, conn):
+def pagina(filename):
     """ Opent de pagina als er op geklikt wordt.
     input: templtes en de pagina die aangeklikt is op de bestaande pagina en zoekdata als die nodig zijn
     output: weergave van de uitgekozen pagina en de data die hoort bij de zoekdata
@@ -32,7 +31,9 @@ def pagina(filename, conn):
         teruggeven = ""
         giveback = ""
         if request.method == 'POST':
-
+            conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
+                                           user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
+                                           password="ConnectionPWD")
             cursor = conn.cursor()
             try:
                 zoekwoord = request.form["zoekwoord"]
@@ -43,12 +44,11 @@ def pagina(filename, conn):
             except KeyError:
                 searchword = ""
             if zoekwoord != "":
-                try:
+                # try:
                     # Query die zoekt op het zoekwoord
                     sql = "select blast.name, blast.accessioncode, functionality.function from " \
                           "blast left join functionint on blast.id = functionint.BLAST_id " \
-                          "left join functionality on functionint.functionality_id = functionality.id " \
- \
+                          "left join functionality on functionint.functionality_id = functionality.id "
                     cursor.execute(sql)
                     records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
                     teruggeven = ("<p2>Gevonden data van het zoeken op protiën naam:</p2><br>\n"
@@ -188,25 +188,32 @@ def pagina(filename, conn):
             return render_template("statistiek.html", teruggeven=teruggeven)
         except:
             teruggeven = ""
-            return render_template("home.html", teruggeven=teruggeven)
+            return render_template("statistiek.html", teruggeven=teruggeven)
     elif filename == "zelfblast.html":
-        try:
-            # if request.method == 'POST':
-            #     teruggeven = "<br>"
-            #     for aligment in blast_record.aligments:
-            #         for hsp in aligment.hsps:
-            #             teruggeven = teruggeven + '---------------------------------'
-            #             teruggeven = teruggeven + 'sequence: ' + aligment.title
-            #             teruggeven = teruggeven + 'lengte: ' + aligment.length
-            #             teruggeven = teruggeven + 'e-value' + hsp.expect
-            #             teruggeven = teruggeven + hsp.query
-            #             teruggeven = teruggeven + hsp.match
-            #             teruggeven = teruggeven + hsp.sbjct
-            return render_template("zelfblast.html")  # , teruggeven=teruggeven, seq=seq)
+if request.method == 'POST':
+    # try:
+    seq = request.form["seq"]
+    teruggeven = ""
+    if seq != "":
 
-        except:
-            teruggeven = "<br>" + "Er gaat iets fout bij het blasten"
-            return render_template("zelfblast.html", teruggeven=teruggeven)
+        result_handle = NCBIWWW.qblast("blastx", "nr", seq)
+        blast_records = NCBIXML.parse(result_handle)
+        blast_record = next(blast_records)
+        teruggeven = "<br>"
+        for aligment in blast_record.aligments:
+            for hsp in aligment.hsps:
+                teruggeven = teruggeven + '---------------------------------'
+                teruggeven = teruggeven + 'sequence: ' + aligment.title
+                teruggeven = teruggeven + 'lengte: ' + aligment.length
+                teruggeven = teruggeven + 'e-value' + hsp.expect
+                teruggeven = teruggeven + hsp.query
+                teruggeven = teruggeven + hsp.match
+                teruggeven = teruggeven + hsp.sbjct
+    return render_template("zelfblast.html", teruggeven=teruggeven, seq=seq)
+
+# except:
+#     teruggeven = "<br>" + "Er gaat iets fout bij het blasten"
+#     return render_template("zelfblast.html", teruggeven=teruggeven)
 
 
 if __name__ == '__main__':
