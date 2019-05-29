@@ -74,7 +74,7 @@ def pagina(filename):
                     teruggeven = teruggeven + "</tr>"
                 teruggeven = teruggeven + "</table>"
             if searchword != "":
-                sql = "select taxonomy.name, blast.name from taxonomy join blast on blast.TAXONOMY_id = taxonomy.id join taxonomy b on b.TAXONOMY_id = taxonomy.id where taxonomy.name like'%" + searchword + "%'"
+                sql = "select blast.accessioncode, blast.name, taxonomy.name from taxonomy join blast on blast.TAXONOMY_id = taxonomy.id join taxonomy b on b.TAXONOMY_id = taxonomy.id where taxonomy.name like'%" + searchword + "%'"
                 cursor.execute(sql)
                 data = cursor.fetchall()
                 cursor.close()
@@ -83,14 +83,16 @@ def pagina(filename):
                 giveback = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
                             + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                             + "   <tr>\n"
-                            + "   <th onclick=\"sortTable(0)\">Naam</th>\n"
-                            + "   <th onclick=\"sortTable(1)\">Taxonomy</th>\n"
+                            + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
+                            + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
+                            + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
                             + "   </tr>")
 
                 for a in data:
                     giveback = giveback + "<tr>"
                     giveback = giveback + "<td>" + str(a[0]) + "</td>"
                     giveback = giveback + "<td>" + str(a[1]) + "</td>"
+                    giveback = giveback + "<td>" + str(a[2]) + "</td>"
                     giveback = giveback + "</tr>"
 
                 giveback = giveback + "</table>"
@@ -203,6 +205,8 @@ def pagina(filename):
                         teruggeven = teruggeven + hsp.query
                         teruggeven = teruggeven + hsp.match
                         teruggeven = teruggeven + hsp.sbjct
+                if teruggeven == "<br>":
+                    teruggeven = teruggeven + "Geen blast resultaten"
                 print(teruggeven)
         return render_template("zelfblast.html", teruggeven=teruggeven, seq=seq)
     else:
