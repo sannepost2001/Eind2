@@ -5,7 +5,6 @@
     <meta charset="utf-8">
     <title>Champignonetjes</title>
     <link rel="stylesheet" href="{{ url_for('static', filename = 'css/name.css') }}">
-    <title>Champignonetjes</title>
 
 </head>
 <body>
@@ -26,10 +25,11 @@
     <article>
         <h2>Geef een sequentie in om zelf te blasten.</h2>
         <form method="POST">
-            <p2>Seq:</p2>
-            <input type="text" name="seq" value="{{seq}}">
-            <input type="submit" value="Submit"></form>
-        <p2>Neem even de tijd dit kan even duren</p2>
+            <p2>Geef de sequentie die je wilt BLASTen:</p2>
+            <input type="text" name="iets" value="{{seq}}">
+            <input type="submit" value="Submit">
+        </form>
+        <p2>Neem even de tijd dit kan even duren. Sluit de pagina niet af.</p2>
         {{teruggeven|safe}}
     </article>
     <aside>
