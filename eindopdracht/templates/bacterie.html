@@ -35,9 +35,13 @@
             <input type="submit" value="Submit">
         </form>
 
+        <form method="POST" style="width:737px; ">
+            <p2>Doorzoek de database door het ingeven van de accessiecode:</p2>
+            <input type="text" name="accessie" value="{{accessie}}">
+            <input type="submit" value="Submit">
+        </form>
         {{teruggeven|safe}}
 
-        {{giveback|safe}}
     </article>
     <script>
         function sortTable(n) {

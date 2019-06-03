@@ -29,11 +29,10 @@ def pagina(filename):
         # """ Als er op zoeken op bacterie naam wordt gebruikt dan wordt de bacterie.html pagina aangeroepen.
         # deze pagina moet nog aangevuld worden met de data die je kruigt als je filterd op het zoekword
         # """
-
+        accessie = ""
         searchword = ""
         zoekwoord = ""
         teruggeven = ""
-        giveback = ""
         if request.method == 'POST':
             conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
                                            user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
@@ -49,6 +48,16 @@ def pagina(filename):
                 searchword = request.form["searchword"]
             except KeyError:
                 searchword = ""
+
+            try:
+                accessie = request.form["accessie"]
+            except KeyError:
+                accessie = ""
+
+            # try:
+            #     searchword = request.form["searchword"]
+            # except KeyError:
+            #     searchword = ""
 
             if zoekwoord != "":
                 # Query die zoekt op het zoekwoord
@@ -73,33 +82,56 @@ def pagina(filename):
                     teruggeven = teruggeven + "<td>" + str(row[2]) + "</td>"
                     teruggeven = teruggeven + "</tr>"
                 teruggeven = teruggeven + "</table>"
-            if searchword != "":
-                sql = "select blast.accessioncode, blast.name, taxonomy.name from taxonomy join blast on " \
-                      "blast.TAXONOMY_id = taxonomy.id join taxonomy b on b.TAXONOMY_id = taxonomy.id where " \
-                      "taxonomy.name like'%" + searchword + "%'"
-                cursor.execute(sql)
-                data = cursor.fetchall()
-                cursor.close()
-                conn.close()
-                # maakt een tabel van de gevonden data
-                giveback = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
-                            + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
-                            + "   <tr>\n"
-                            + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
-                            + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
-                            + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
-                            + "   </tr>")
+        if searchword != "":
+            sql = "select blast.accessioncode, blast.name, taxonomy.name from taxonomy join blast on " \
+                  "blast.TAXONOMY_id = taxonomy.id where taxonomy.name like'%" + searchword + "%'"
+            cursor.execute(sql)
+            data = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            # maakt een tabel van de gevonden data
+            teruggeven = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
+                          + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+                          + "   <tr>\n"
+                          + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
+                          + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
+                          + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
+                          + "   </tr>")
 
-                for a in data:
-                    giveback = giveback + "<tr>"
-                    giveback = giveback + "<td>" + str(a[0]) + "</td>"
-                    giveback = giveback + "<td>" + str(a[1]) + "</td>"
-                    giveback = giveback + "<td>" + str(a[2]) + "</td>"
-                    giveback = giveback + "</tr>"
+            for a in data:
+                teruggeven = teruggeven + "<tr>"
+                teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
+                teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
+                teruggeven = teruggeven + "<td>" + str(a[2]) + "</td>"
+                teruggeven = teruggeven + "</tr>"
 
-                giveback = giveback + "</table>"
+            teruggeven = teruggeven + "</table>"
+        if accessie != "":
+            sql = "select blast.accessioncode, blast.name, taxonomy.name from taxonomy join blast on " \
+                  "blast.TAXONOMY_id = taxonomy.id where blast.accessioncode like'%" + accessie + "%'"
+            cursor.execute(sql)
+            data = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            # maakt een tabel van de gevonden data
+            teruggeven = ("<p2>Gevonden data van het zoeken op accessiecode:</p2><br>\n"
+                          + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+                          + "   <tr>\n"
+                          + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
+                          + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
+                          + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
+                          + "   </tr>")
 
-        return render_template("bacterie.html", teruggeven=teruggeven, zoekwoord=zoekwoord, giveback=giveback,
+            for a in data:
+                teruggeven = teruggeven + "<tr>"
+                teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
+                teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
+                teruggeven = teruggeven + "<td>" + str(a[2]) + "</td>"
+                teruggeven = teruggeven + "</tr>"
+
+            teruggeven = teruggeven + "</table>"
+
+        return render_template("bacterie.html", teruggeven=teruggeven, zoekwoord=zoekwoord, accessie=accessie,
                                searchword=searchword)
 
 
