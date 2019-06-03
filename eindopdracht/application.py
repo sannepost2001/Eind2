@@ -286,8 +286,7 @@ def pagina(filename):
                   " where taxonomy.name like'%" + searchword + "%'"
             cursor.execute(sql)
             data = cursor.fetchall()
-            cursor.close()
-            conn.close()
+
             # maakt een tabel van de gevonden data
             teruggeven = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
                           + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
@@ -309,7 +308,8 @@ def pagina(filename):
                     teruggeven = teruggeven + "<td>" + str(taxonomies(a[2])) + "</td>"
                     teruggeven = teruggeven + "<td>" + str(a[3]) + "</tb>"
                     teruggeven = teruggeven + "</tr>"
-
+            cursor.close()
+            conn.close()
             teruggeven = teruggeven + "</table>"
         if accessie != "":
             sql = "select blast.accessioncode, blast.name, sequence from blast join sequence on blast.SEQUENCE_" \
