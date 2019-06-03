@@ -28,7 +28,8 @@ def pagina(filename):
 
     def taxonomies(nameinput):
         """
-        Display the taxonomy of something using the taxonomy table in the database
+        Display the taxonomy of something using the taxonomy table in the database.
+        Besides parameters, requires active cursor and database connection.
         :param nameinput: Name to get taxonomy for
         :return: Returns a string displaying taxonomy or an error
         """
@@ -103,7 +104,9 @@ def pagina(filename):
                 for row in records:
                     teruggeven = teruggeven + "<tr>"
                     teruggeven = teruggeven + "<td>" + str(row[0]) + "</td>"
-                    teruggeven = teruggeven + "<td>" + str(row[1]) + "</td>"
+                    teruggeven = teruggeven + "<td>" \
+                                              "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(a[0]) + "\">" \
+                                              "" + str(a[0]) + "</a></td>"
                     teruggeven = teruggeven + "<td>" + str(row[2]) + "</td>"
                     teruggeven = teruggeven + "</tr>"
                 teruggeven = teruggeven + "</table>"
@@ -127,10 +130,14 @@ def pagina(filename):
                     pass
                 else:
                     teruggeven = teruggeven + "<tr>"
-                    teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
+                    teruggeven = teruggeven + "<td>" \
+                                              "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(a[0]) + "\">" \
+                                              "" + str(a[0]) + "</a></td>"
                     teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
                     teruggeven = teruggeven + "<td>" + str(taxonomies(a[2])) + "</td>"
                     teruggeven = teruggeven + "</tr>"
+            cursor.close()
+            conn.close()
 
             teruggeven = teruggeven + "</table>"
         if accessie != "":
@@ -147,7 +154,9 @@ def pagina(filename):
 
             for a in data:
                 teruggeven = teruggeven + "<tr>"
-                teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
+                teruggeven = teruggeven + "<td>" \
+                                          "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(a[0]) + "\">" \
+                                          "" + str(a[0]) + "</a></td>"
                 teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
                 teruggeven = teruggeven + "</tr>"
             cursor.close()
