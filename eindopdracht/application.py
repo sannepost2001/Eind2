@@ -234,9 +234,6 @@ def pagina(filename):
         # """ Als er op zoeken op bacterie naam wordt gebruikt dan wordt de bacterie.html pagina aangeroepen.
         # deze pagina moet nog aangevuld worden met de data die je kruigt als je filterd op het zoekword
         # """
-        conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
-                                       user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
-                                       password="ConnectionPWD")
         accessie = ""
         searchword = ""
         zoekwoord = ""
@@ -280,7 +277,8 @@ def pagina(filename):
                     teruggeven = teruggeven + "<td>" + str(row[2]) + "</td>"
                     teruggeven = teruggeven + "</tr>"
                 teruggeven = teruggeven + "</table>"
-        elif searchword != "":
+        if searchword != "":
+            print("hoi")
             sql = "select blast.accessioncode, blast.name, taxonomy.name, sequence from taxonomy join blast on " \
                   "blast.TAXONOMY_id = taxonomy.id join sequence on blast.SEQUENCE_id = sequence.id " \
                   " where taxonomy.name like'%" + searchword + "%'"
@@ -298,7 +296,9 @@ def pagina(filename):
                           + "   </tr>")
 
             alreadyhave = []
+            print(data)
             for a in data:
+                print(a)
                 if str(a[0]) in alreadyhave:  # For some reason "not in" seems to be significantly slower?
                     pass
                 else:
@@ -391,10 +391,9 @@ def pagina(filename):
                     teruggeven = teruggeven + "Geen blast resultaten"
                 print(teruggeven)
         return render_template("zelfblast.html", teruggeven=teruggeven, seq=seq)
-    # else:
-    #     resp = make_response(render_template(filename))
-    #     return resp
-    #
+    else:
+        resp = make_response(render_template(filename))
+        return resp
 
 
 if __name__ == '__main__':
