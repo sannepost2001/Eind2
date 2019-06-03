@@ -30,7 +30,6 @@ def pagina(filename):
         """
         Display the taxonomy of something using the taxonomy table in the database
         :param nameinput: Name to get taxonomy for
-        :param cur: Database cursor
         :return: Returns a string displaying taxonomy or an error
         """
         # nameinput = request.args.get("nameinput")
@@ -113,8 +112,6 @@ def pagina(filename):
                   "blast.TAXONOMY_id = taxonomy.id where taxonomy.name like'%" + searchword + "%'"
             cursor.execute(sql)
             data = cursor.fetchall()
-            cursor.close()
-            conn.close()
             # maakt een tabel van de gevonden data
             teruggeven = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
                           + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
