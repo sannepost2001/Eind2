@@ -33,7 +33,7 @@ def pagina(filename):
         :return: Returns a string displaying taxonomy or an error
         """
         # nameinput = request.args.get("nameinput")
-        cursor.execute("select id from taxonomy where name = \"" + nameinput + "\" limit 1")
+        cursor.execute("select id from taxonomy where name like '%" + nameinput + "%' limit 1")
         tax_id = cursor.fetchone()
         if tax_id:
             tax_id = tax_id[0]
@@ -158,7 +158,6 @@ def pagina(filename):
         return render_template("bacterie.html", teruggeven=teruggeven, zoekwoord=zoekwoord, accessie=accessie,
                                searchword=searchword)
 
-
     elif filename == "tabel.html":
         """"""
         # try:
@@ -230,10 +229,14 @@ def pagina(filename):
         #     teruggeven = "Verkeerde zoek opdracht ingegeven. " + "<br>" + \
         #                  "Vul alleen bij de naam een woord in en bij de rest alleen getallen."
         #     return render_template("tabel.html", teruggeven=teruggeven)
-    if filename == "seqs.html":
+
+    elif filename == "seqs.html":
         # """ Als er op zoeken op bacterie naam wordt gebruikt dan wordt de bacterie.html pagina aangeroepen.
         # deze pagina moet nog aangevuld worden met de data die je kruigt als je filterd op het zoekword
         # """
+        conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
+                                       user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
+                                       password="ConnectionPWD")
         accessie = ""
         searchword = ""
         zoekwoord = ""
@@ -277,55 +280,64 @@ def pagina(filename):
                     teruggeven = teruggeven + "<td>" + str(row[2]) + "</td>"
                     teruggeven = teruggeven + "</tr>"
                 teruggeven = teruggeven + "</table>"
-        # if searchword != "":
-        #     sql = "select blast.accessioncode, blast.name, taxonomy.name from taxonomy join blast on " \
-        #           "blast.TAXONOMY_id = taxonomy.id where taxonomy.name like'%" + searchword + "%'"
-        #     cursor.execute(sql)
-        #     data = cursor.fetchall()
-        #     cursor.close()
-        #     conn.close()
-        #     # maakt een tabel van de gevonden data
-        #     teruggeven = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
-        #                   + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
-        #                   + "   <tr>\n"
-        #                   + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
-        #                   + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
-        #                   + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
-        #                   + "   </tr>")
-        #
-        #     for a in data:
-        #         teruggeven = teruggeven + "<tr>"
-        #         teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
-        #         teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
-        #         teruggeven = teruggeven + "<td>" + str(a[2]) + "</td>"
-        #         teruggeven = teruggeven + "</tr>"
-        #
-        #     teruggeven = teruggeven + "</table>"
-        # if accessie != "":
-        #     sql = "select blast.accessioncode, blast.name from blast where blast.accessioncode like'%" + accessie + "%'"
-        #     cursor.execute(sql)
-        #     data = cursor.fetchall()
-        #     cursor.close()
-        #     conn.close()
-        #     # maakt een tabel van de gevonden data
-        #     teruggeven = ("<p2>Gevonden data van het zoeken op accessiecode:</p2><br>\n"
-        #                   + "   <table id=\"myTable\" style=\"width:777px; height: 400px;\">"
-        #                   + "   <tr>\n"
-        #                   + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
-        #                   + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
-        #                   + "   </tr>")
-        #
-        #     for a in data:
-        #         teruggeven = teruggeven + "<tr>"
-        #         teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
-        #         teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
-        #         teruggeven = teruggeven + "</tr>"
-        #
-        #     teruggeven = teruggeven + "</table>"
+        if searchword != "":
+            sql = "select blast.accessioncode, blast.name, taxonomy.name, sequence from taxonomy join blast on " \
+                  "blast.TAXONOMY_id = taxonomy.id join sequence on blast.SEQUENCE_id = sequence.id " \
+                  " where taxonomy.name like'%" + searchword + "%'"
+            cursor.execute(sql)
+            data = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            # maakt een tabel van de gevonden data
+            teruggeven = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
+                          + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+                          + "   <tr>\n"
+                          + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
+                          + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
+                          + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
+                          + "   <th onclick=\"sortTable(3)\">Sequenties</th>\n"
+                          + "   </tr>")
+
+            alreadyhave = []
+            for a in data:
+                if str(a[0]) in alreadyhave:  # For some reason "not in" seems to be significantly slower?
+                    pass
+                else:
+                    teruggeven = teruggeven + "<tr>"
+                    teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
+                    teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
+                    teruggeven = teruggeven + "<td>" + str(taxonomies(a[2])) + "</td>"
+                    teruggeven = teruggeven + "<td>" + str(a[3]) + "</tb>"
+                    teruggeven = teruggeven + "</tr>"
+
+            teruggeven = teruggeven + "</table>"
+        if accessie != "":
+            sql = "select blast.accessioncode, blast.name, sequence from blast join sequence on blast.SEQUENCE_" \
+                  "id = sequence.id where blast.accessioncode like'%" + accessie + "%'"
+            cursor.execute(sql)
+            data = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            # maakt een tabel van de gevonden data
+            teruggeven = ("<p2>Gevonden data van het zoeken op accessiecode:</p2><br>\n"
+                          + "   <table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+                          + "   <tr>\n"
+                          + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
+                          + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
+                          + "   <th onclick=\"sortTable(2)\">Sequenties</th>\n"
+                          + "   </tr>")
+
+            for a in data:
+                teruggeven = teruggeven + "<tr>"
+                teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
+                teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
+                teruggeven = teruggeven + "<td>" + str(a[2]) + "</td>"
+                teruggeven = teruggeven + "</tr>"
+
+            teruggeven = teruggeven + "</table>"
 
         return render_template("seqs.html", teruggeven=teruggeven, zoekwoord=zoekwoord, accessie=accessie,
                                searchword=searchword)
-
 
     elif filename == "statistiek.html":
         # """"""
