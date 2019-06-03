@@ -1,3 +1,4 @@
+--find-links wheelhouse
 biopython==1.73
 Click==7.0
 Flask==1.0.2
