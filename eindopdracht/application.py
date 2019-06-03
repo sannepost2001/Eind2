@@ -128,7 +128,7 @@ def pagina(filename):
                 teruggeven = teruggeven + "<tr>"
                 teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
                 teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
-                teruggeven = teruggeven + "<td>" + str(a[2]) + "</td>"
+                teruggeven = teruggeven + "<td>" + str(taxonomies(a[2])) + "</td>"
                 teruggeven = teruggeven + "</tr>"
 
             teruggeven = teruggeven + "</table>"
@@ -152,7 +152,6 @@ def pagina(filename):
                     teruggeven = teruggeven + "<tr>"
                     teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
                     teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
-                    teruggeven = teruggeven + "<td>" + str(taxonomies(a[2])) + "</td>"
                     teruggeven = teruggeven + "</tr>"
             cursor.close()
             conn.close()
