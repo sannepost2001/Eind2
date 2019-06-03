@@ -169,6 +169,8 @@ table {
     border-spacing: 0;
     width: 100%;
     border: 1px solid #ddd;
+    word-wrap:break-word;
+    table-layout: fixed;
 }
 
 th {

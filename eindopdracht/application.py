@@ -241,11 +241,11 @@ def pagina(filename):
         searchword = ""
         zoekwoord = ""
         teruggeven = ""
+        conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
+                                       user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
+                                       password="ConnectionPWD")
+        cursor = conn.cursor()
         if request.method == 'POST':
-            conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
-                                           user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
-                                           password="ConnectionPWD")
-            cursor = conn.cursor()
             try:
                 zoekwoord = request.form["zoekwoord"]
             except KeyError:
@@ -280,7 +280,7 @@ def pagina(filename):
                     teruggeven = teruggeven + "<td>" + str(row[2]) + "</td>"
                     teruggeven = teruggeven + "</tr>"
                 teruggeven = teruggeven + "</table>"
-        if searchword != "":
+        elif searchword != "":
             sql = "select blast.accessioncode, blast.name, taxonomy.name, sequence from taxonomy join blast on " \
                   "blast.TAXONOMY_id = taxonomy.id join sequence on blast.SEQUENCE_id = sequence.id " \
                   " where taxonomy.name like'%" + searchword + "%'"
