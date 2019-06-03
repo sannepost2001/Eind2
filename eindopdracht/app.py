@@ -24,6 +24,41 @@ def pagina(filename):
     input: templtes en de pagina die aangeklikt is op de bestaande pagina en zoekdata als die nodig zijn
     output: weergave van de uitgekozen pagina en de data die hoort bij de zoekdata
     """
+
+    def taxonomies(nameinput):
+        """
+        Display the taxonomy of something using the taxonomy table in the database
+        :param nameinput: Name to get taxonomy for
+        :param cur: Database cursor
+        :return: Returns a string displaying taxonomy or an error
+        """
+        # nameinput = request.args.get("nameinput")
+        cursor.execute("select id from taxonomy where name = \"" + nameinput + "\" limit 1")
+        tax_id = cursor.fetchone()
+        if tax_id:
+            tax_id = tax_id[0]
+            taxquery = "select name from taxonomy where id = \"" + str(tax_id) + "\""
+            cursor.execute(taxquery)
+            taxonomy = cursor.fetchone()[0]  # Returns tuple with 1 item without [0]
+            stop = False
+            while not stop:
+                taxquery = "select TAXONOMY_id from taxonomy where id = \"" + str(tax_id) + "\""
+                cursor.execute(taxquery)
+                tax_id = cursor.fetchone()[0]
+                taxquery = "select name from taxonomy where id = \"" + str(tax_id) + "\""
+                cursor.execute(taxquery)
+                tax_next = cursor.fetchone()
+                if tax_next:
+                    tax_next = tax_next[0]
+                else:
+                    return taxonomy
+                taxonomy = str(tax_next) + " - " + taxonomy
+                if not tax_id:
+                    stop = True
+            return taxonomy
+        else:
+            return "Taxonomy not found"
+
     if filename == "bacterie.html":
         # """ Als er op zoeken op bacterie naam wordt gebruikt dan wordt de bacterie.html pagina aangeroepen.
         # deze pagina moet nog aangevuld worden met de data die je kruigt als je filterd op het zoekword
@@ -77,8 +112,6 @@ def pagina(filename):
                 sql = "select blast.accessioncode, blast.name, taxonomy.name from taxonomy join blast on blast.TAXONOMY_id = taxonomy.id join taxonomy b on b.TAXONOMY_id = taxonomy.id where taxonomy.name like'%" + searchword + "%'"
                 cursor.execute(sql)
                 data = cursor.fetchall()
-                cursor.close()
-                conn.close()
                 # maakt een tabel van de gevonden data
                 giveback = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
                             + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
@@ -88,12 +121,19 @@ def pagina(filename):
                             + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
                             + "   </tr>")
 
+                alreadyhave = []
                 for a in data:
-                    giveback = giveback + "<tr>"
-                    giveback = giveback + "<td>" + str(a[0]) + "</td>"
-                    giveback = giveback + "<td>" + str(a[1]) + "</td>"
-                    giveback = giveback + "<td>" + str(a[2]) + "</td>"
-                    giveback = giveback + "</tr>"
+                    if str(a[0]) in alreadyhave:  # For some reason "not in" seems to be significantly slower
+                        pass
+                    else:
+                        giveback = giveback + "<tr>"
+                        giveback = giveback + "<td>" + str(a[0]) + "</td>"
+                        giveback = giveback + "<td>" + str(a[1]) + "</td>"
+                        giveback = giveback + "<td>" + taxonomies(str(a[2])) + "</td>"
+                        giveback = giveback + "</tr>"
+                        alreadyhave.append(str(a[0]))
+                cursor.close()
+                conn.close()
 
                 giveback = giveback + "</table>"
 
