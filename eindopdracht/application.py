@@ -73,27 +73,18 @@ def pagina(filename):
                                            user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
                                            password="ConnectionPWD")
             cursor = conn.cursor()
-
             try:
                 zoekwoord = request.form["zoekwoord"]
             except KeyError:
                 zoekwoord = ""
-
             try:
                 searchword = request.form["searchword"]
             except KeyError:
                 searchword = ""
-
             try:
                 accessie = request.form["accessie"]
             except KeyError:
                 accessie = ""
-
-            # try:
-            #     searchword = request.form["searchword"]
-            # except KeyError:
-            #     searchword = ""
-
             if zoekwoord != "":
                 # Query die zoekt op het zoekwoord
                 sql = "select blast.name, blast.accessioncode, functionality.function from " \
@@ -142,17 +133,15 @@ def pagina(filename):
 
             teruggeven = teruggeven + "</table>"
         if accessie != "":
-            sql = "select blast.accessioncode, blast.name, taxonomy.name from taxonomy join blast on " \
-                  "blast.TAXONOMY_id = taxonomy.id where blast.accessioncode like'%" + accessie + "%'"
+            sql = "select blast.accessioncode, blast.name from blast where blast.accessioncode like'%" + accessie + "%'"
             cursor.execute(sql)
             data = cursor.fetchall()
             # maakt een tabel van de gevonden data
             teruggeven = ("<p2>Gevonden data van het zoeken op accessiecode:</p2><br>\n"
-                          + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+                          + "   <table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                           + "   <tr>\n"
                           + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
                           + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
-                          + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
                           + "   </tr>")
 
             alreadyhave = []
@@ -184,6 +173,7 @@ def pagina(filename):
         score = ""
         identity = ""
         evalue = ""
+        accessie = ""
         if request.method == 'POST':
             conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
                                            user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
@@ -194,6 +184,7 @@ def pagina(filename):
             score = request.form["score"]
             identity = request.form["identity"]
             evalue = request.form["evalue"]
+            accessie = request.form["accessie"]
             if naam != "":
                 #
                 sql = sql + " and blast.name like '%" + naam + "%'"
@@ -210,7 +201,10 @@ def pagina(filename):
                 #
                 sql = sql + " and evalue < " + evalue + "%'"
             #
-            query = "select blast.name, evalue, bits, querycoverage, percidentity from blast where 1=1" + sql
+            if accessie != "":
+                sql = sql + " and accessioncode like '%" + accessie + "%'"
+            query = "select blast.name, evalue, bits, querycoverage, percidentity, accessioncode from blast where 1=1" \
+                    + sql
             cursor.execute(query)
             records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
             cursor.close()
@@ -222,6 +216,7 @@ def pagina(filename):
                           + "    <th onclick=\"sortTable(2)\">(Bit)score:</th>\n"
                           + "    <th onclick=\"sortTable(3)\">Coverage:</th>\n"
                           + "    <th onclick=\"sortTable(4)\">%identity:</th>\n"
+                          + "    <th onclick=\"sortTable(5)\">Accessiecode:</th>\n"
                           + "    </tr>")
             for row in records:
                 teruggeven = teruggeven + "<tr>"
@@ -230,14 +225,112 @@ def pagina(filename):
                 teruggeven = teruggeven + "<td>" + str((row[2])) + "</td>"
                 teruggeven = teruggeven + "<td>" + str((row[3])) + "</td>"
                 teruggeven = teruggeven + "<td>" + str((row[4])) + "</td>"
+                teruggeven = teruggeven + "<td>" + str((row[5])) + "</td>"
                 teruggeven = teruggeven + "</tr>"
             teruggeven = teruggeven + "</table>"
         return (render_template("tabel.html", teruggeven=teruggeven, naam=naam, identity=identity, score=score,
-                                evalue=evalue, coverage=coverage))
+                                evalue=evalue, coverage=coverage, accessie=accessie))
         # except:
         #     teruggeven = "Verkeerde zoek opdracht ingegeven. " + "<br>" + \
         #                  "Vul alleen bij de naam een woord in en bij de rest alleen getallen."
         #     return render_template("tabel.html", teruggeven=teruggeven)
+    if filename == "seqs.html":
+        # """ Als er op zoeken op bacterie naam wordt gebruikt dan wordt de bacterie.html pagina aangeroepen.
+        # deze pagina moet nog aangevuld worden met de data die je kruigt als je filterd op het zoekword
+        # """
+        accessie = ""
+        searchword = ""
+        zoekwoord = ""
+        teruggeven = ""
+        if request.method == 'POST':
+            conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
+                                           user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
+                                           password="ConnectionPWD")
+            cursor = conn.cursor()
+            try:
+                zoekwoord = request.form["zoekwoord"]
+            except KeyError:
+                zoekwoord = ""
+            try:
+                searchword = request.form["searchword"]
+            except KeyError:
+                searchword = ""
+            try:
+                accessie = request.form["accessie"]
+            except KeyError:
+                accessie = ""
+            if zoekwoord != "":
+                # Query die zoekt op het zoekwoord
+                sql = "select blast.name, blast.accessioncode, sequence from " \
+                      "blast join sequence on blast.SEQUENCE_id = sequence.id " \
+                      "where blast.name like '%" + zoekwoord + "%'"
+                cursor.execute(sql)
+
+                records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
+                teruggeven = ("<p2>Gevonden data van het zoeken op protiën naam:</p2><br>\n"
+                              + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+                              + "   <tr>\n"
+                              + "   <th onclick=\"sortTable(0)\">Naam</th>\n"
+                              + "   <th onclick=\"sortTable(1)\">Accessiecode:</th>\n"
+                              + "   <th onclick=\"sortTable(2)\">Sequentie:</th>\n"
+                              + "   </tr>")
+                for row in records:
+                    teruggeven = teruggeven + "<tr>"
+                    teruggeven = teruggeven + "<td>" + str(row[0]) + "</td>"
+                    teruggeven = teruggeven + "<td>" + str(row[1]) + "</td>"
+                    teruggeven = teruggeven + "<td>" + str(row[2]) + "</td>"
+                    teruggeven = teruggeven + "</tr>"
+                teruggeven = teruggeven + "</table>"
+        # if searchword != "":
+        #     sql = "select blast.accessioncode, blast.name, taxonomy.name from taxonomy join blast on " \
+        #           "blast.TAXONOMY_id = taxonomy.id where taxonomy.name like'%" + searchword + "%'"
+        #     cursor.execute(sql)
+        #     data = cursor.fetchall()
+        #     cursor.close()
+        #     conn.close()
+        #     # maakt een tabel van de gevonden data
+        #     teruggeven = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
+        #                   + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+        #                   + "   <tr>\n"
+        #                   + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
+        #                   + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
+        #                   + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
+        #                   + "   </tr>")
+        #
+        #     for a in data:
+        #         teruggeven = teruggeven + "<tr>"
+        #         teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
+        #         teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
+        #         teruggeven = teruggeven + "<td>" + str(a[2]) + "</td>"
+        #         teruggeven = teruggeven + "</tr>"
+        #
+        #     teruggeven = teruggeven + "</table>"
+        # if accessie != "":
+        #     sql = "select blast.accessioncode, blast.name from blast where blast.accessioncode like'%" + accessie + "%'"
+        #     cursor.execute(sql)
+        #     data = cursor.fetchall()
+        #     cursor.close()
+        #     conn.close()
+        #     # maakt een tabel van de gevonden data
+        #     teruggeven = ("<p2>Gevonden data van het zoeken op accessiecode:</p2><br>\n"
+        #                   + "   <table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+        #                   + "   <tr>\n"
+        #                   + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
+        #                   + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
+        #                   + "   </tr>")
+        #
+        #     for a in data:
+        #         teruggeven = teruggeven + "<tr>"
+        #         teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
+        #         teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
+        #         teruggeven = teruggeven + "</tr>"
+        #
+        #     teruggeven = teruggeven + "</table>"
+
+        return render_template("seqs.html", teruggeven=teruggeven, zoekwoord=zoekwoord, accessie=accessie,
+                               searchword=searchword)
+
+
     elif filename == "statistiek.html":
         # """"""
         try:
