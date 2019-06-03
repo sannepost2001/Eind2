@@ -178,7 +178,7 @@ def pagina(filename):
             coverage = request.form["coverage"]
             score = request.form["score"]
             identity = request.form["identity"]
-            evalue = request.form["evalue"]
+            # evalue = request.form["evalue"]
             accessie = request.form["accessie"]
             if naam != "":
                 #
@@ -192,10 +192,10 @@ def pagina(filename):
             if identity != "":
                 #
                 sql = sql + " and percidentity > " + identity
-            if evalue != "":
-                #
-                sql = sql + " and evalue < " + evalue + "%'"
-            #
+            # if evalue != "":
+            #     #
+            #     sql = sql + " and evalue < " + evalue + "%'"
+            # #
             if accessie != "":
                 sql = sql + " and accessioncode like '%" + accessie + "%'"
             query = "select blast.name, evalue, bits, querycoverage, percidentity, accessioncode from blast where 1=1" \
