@@ -124,12 +124,16 @@ def pagina(filename):
                           + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
                           + "   </tr>")
 
+            alreadyhave = []
             for a in data:
-                teruggeven = teruggeven + "<tr>"
-                teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
-                teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
-                teruggeven = teruggeven + "<td>" + str(taxonomies(a[2])) + "</td>"
-                teruggeven = teruggeven + "</tr>"
+                if str(a[0]) in alreadyhave:  # For some reason "not in" seems to be significantly slower?
+                    pass
+                else:
+                    teruggeven = teruggeven + "<tr>"
+                    teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
+                    teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
+                    teruggeven = teruggeven + "<td>" + str(taxonomies(a[2])) + "</td>"
+                    teruggeven = teruggeven + "</tr>"
 
             teruggeven = teruggeven + "</table>"
         if accessie != "":
@@ -144,15 +148,11 @@ def pagina(filename):
                           + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
                           + "   </tr>")
 
-            alreadyhave = []
             for a in data:
-                if str(a[0]) in alreadyhave:  # For some reason "not in" seems to be significantly slower?
-                    pass
-                else:
-                    teruggeven = teruggeven + "<tr>"
-                    teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
-                    teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
-                    teruggeven = teruggeven + "</tr>"
+                teruggeven = teruggeven + "<tr>"
+                teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
+                teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
+                teruggeven = teruggeven + "</tr>"
             cursor.close()
             conn.close()
 
