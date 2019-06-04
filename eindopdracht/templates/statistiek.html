@@ -18,16 +18,32 @@
 
         function drawChart() {
 
-            var data = google.visualization.arrayToDataTable([{{teruggeven|safe}}])
+            var gegevens = google.visualization.arrayToDataTable([{{teruggeven|safe}}])
             ;
-
             var options = {
                 title:'Veeg over de delen van de PieChart om te zien hoeveel procent het organisme van de top 5 bedekt.'
             };
 
-            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+            var chart = new google.visualization.PieChart(document.getElementById('piechart1'));
 
-            chart.draw(data, options);
+            chart.draw(gegevens, options );
+        }
+    </script>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([{{giveback|safe}}])
+            ;
+            var opties = {
+                title:'Veeg over de delen van de PieChart om te zien hoeveel procent het organisme van al de data bedekt.'
+            };
+            var chart = new google.visualization.PieChart(document.getElementById('piechart2'));
+
+            chart.draw( data,  opties);
         }
     </script>
 </header>
@@ -44,8 +60,8 @@
 </nav>
 <main>
 
-    <div id="piechart" style="width: 8000px"></div>
-
+    <div id="piechart1" style="width: 8000px"></div><br>
+    <div id="piechart2" style="width: 8000px"></div>
     <aside>
         <h3>Gerelateerd</h3>
         <ul>

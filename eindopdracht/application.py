@@ -287,7 +287,7 @@ def pagina(filename):
                     teruggeven = teruggeven + "<tr>"
                     teruggeven = teruggeven + "<td><p2>" + str(row[0]) + "</p2></td>"
                     teruggeven = teruggeven + "<td>" \
-                                              "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(row[0]) + "\">"\
+                                              "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(row[1]) + "\">"\
                                               "" + str(row[1]) + "</a></td>"
                     teruggeven = teruggeven + "<td><p2>" + str(row[2]) + "</p2></td>"
                     teruggeven = teruggeven + "</tr>"
@@ -360,7 +360,7 @@ def pagina(filename):
 
     elif filename == "statistiek.html":
         # """"""
-        try:
+        # try:
             conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
                                            user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
                                            password="ConnectionPWD")
@@ -374,9 +374,22 @@ def pagina(filename):
             for row in records:
                 teruggeven = teruggeven + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
             teruggeven = teruggeven[:-1]
-            return render_template("statistiek.html", teruggeven=teruggeven)
-        except:
-            return render_template("error.html")
+            conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
+                                           user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
+                                           password="ConnectionPWD")
+            cursor = conn.cursor()
+            cursor.execute("select name, count(*) from blast group by name order by 2 desc")
+            gegevens = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
+            cursor.close()
+            conn.close()
+            giveback = "['Naam', '%'],"
+            #
+            for row in gegevens:
+                giveback = giveback + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
+            giveback = giveback[:-1]
+            return render_template("statistiek.html", teruggeven=teruggeven, giveback = giveback)
+        # except:
+        #     return render_template("error.html")
 
     elif filename == "zelfblast.html":
         seq = ""
