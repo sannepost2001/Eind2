@@ -86,6 +86,7 @@ def pagina(filename):
             except KeyError:
                 accessie = ""
             if zoekwoord != "":
+                # als er gezocht wordt op naam dan is zoekword niet leeg dus dan wordt het volgende gedaan
                 # Query die zoekt op het zoekwoord
                 sql = "select blast.name, blast.accessioncode, functionality.function from " \
                       "blast left join functionint on blast.id = functionint.BLAST_id " \
@@ -94,8 +95,9 @@ def pagina(filename):
                 cursor.execute(sql)
 
                 records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
-                teruggeven = ("<p2>Gevonden data van het zoeken op protiën naam:</p2><br>\n"
-                              + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+                # maak een tabel in teruggeven zodat er echt iets wordt teruggeven
+                teruggeven = ("<p2>Gevonden data van het zoeken op naam:</p2><br>\n"
+                              + "   <table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                               + "   <tr>\n"
                               + "   <th onclick=\"sortTable(0)\">Naam</th>\n"
                               + "   <th onclick=\"sortTable(1)\">Accessiecode:</th>\n"
@@ -103,14 +105,16 @@ def pagina(filename):
                               + "   </tr>")
                 for row in records:
                     teruggeven = teruggeven + "<tr>"
-                    teruggeven = teruggeven + "<td>" + str(row[0]) + "</td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(row[0]) + "</p2></td>"
+                    # Maak van al de accessiecodes en een link naar de ncbi pagina
                     teruggeven = teruggeven + "<td>" \
-                                              "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(a[0]) + "\">" \
-                                              "" + str(a[0]) + "</a></td>"
-                    teruggeven = teruggeven + "<td>" + str(row[2]) + "</td>"
+                                              "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(row[1]) + "\">"\
+                                              "" + str(row[1]) + "</a></td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(row[2]) + "</p2></td>"
                     teruggeven = teruggeven + "</tr>"
                 teruggeven = teruggeven + "</table>"
         if searchword != "":
+            # als er gezocht wordt op naam dan is zoekword niet leeg dus dan wordt het volgende gedaan
             sql = "select blast.accessioncode, blast.name, taxonomy.name from taxonomy join blast on " \
                   "blast.TAXONOMY_id = taxonomy.id where taxonomy.name like'%" + searchword + "%'"
             cursor.execute(sql)
@@ -133,8 +137,8 @@ def pagina(filename):
                     teruggeven = teruggeven + "<td>" \
                                               "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(a[0]) + "\">" \
                                               "" + str(a[0]) + "</a></td>"
-                    teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
-                    teruggeven = teruggeven + "<td>" + str(taxonomies(a[2])) + "</td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(a[1]) + "</p2></td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(taxonomies(a[2])) + "</p2></td>"
                     teruggeven = teruggeven + "</tr>"
             cursor.close()
             conn.close()
@@ -157,7 +161,7 @@ def pagina(filename):
                 teruggeven = teruggeven + "<td>" \
                                           "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(a[0]) + "\">" \
                                           "" + str(a[0]) + "</a></td>"
-                teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
+                teruggeven = teruggeven + "<td><p2>" + str(a[1]) + "</p2></td>"
                 teruggeven = teruggeven + "</tr>"
             cursor.close()
             conn.close()
@@ -224,12 +228,14 @@ def pagina(filename):
                           + "    </tr>")
             for row in records:
                 teruggeven = teruggeven + "<tr>"
-                teruggeven = teruggeven + "<td>" + str((row[0])) + "</td>"
-                teruggeven = teruggeven + "<td>" + str((row[1])) + "</td>"
-                teruggeven = teruggeven + "<td>" + str((row[2])) + "</td>"
-                teruggeven = teruggeven + "<td>" + str((row[3])) + "</td>"
-                teruggeven = teruggeven + "<td>" + str((row[4])) + "</td>"
-                teruggeven = teruggeven + "<td>" + str((row[5])) + "</td>"
+                teruggeven = teruggeven + "<td><p2>" + str(row[0]) + "</p2></td>"
+                teruggeven = teruggeven + "<td><p2>" + str(row[1]) + "</p2></td>"
+                teruggeven = teruggeven + "<td><p2>" + str(row[2]) + "</p2></td>"
+                teruggeven = teruggeven + "<td><p2>" + str(row[3]) + "</p2></td>"
+                teruggeven = teruggeven + "<td><p2>" + str(row[4]) + "</p2></td>"
+                teruggeven = teruggeven + "<td>" \
+                                          "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(row[5]) + "\">"\
+                                          "" + str(row[5]) + "</a></td>"
                 teruggeven = teruggeven + "</tr>"
             teruggeven = teruggeven + "</table>"
         return (render_template("tabel.html", teruggeven=teruggeven, naam=naam, identity=identity, score=score,
@@ -272,7 +278,7 @@ def pagina(filename):
                 cursor.execute(sql)
 
                 records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
-                teruggeven = ("<p2>Gevonden data van het zoeken op protiën naam:</p2><br>\n"
+                teruggeven = ("<p2>Gevonden data van het zoeken op naam:</p2><br>\n"
                               + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                               + "   <tr>\n"
                               + "   <th onclick=\"sortTable(0)\">Naam</th>\n"
@@ -281,9 +287,11 @@ def pagina(filename):
                               + "   </tr>")
                 for row in records:
                     teruggeven = teruggeven + "<tr>"
-                    teruggeven = teruggeven + "<td>" + str(row[0]) + "</td>"
-                    teruggeven = teruggeven + "<td>" + str(row[1]) + "</td>"
-                    teruggeven = teruggeven + "<td>" + str(row[2]) + "</td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(row[0]) + "</p2></td>"
+                    teruggeven = teruggeven + "<td>" \
+                                              "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(row[0]) + "\">"\
+                                              "" + str(row[1]) + "</a></td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(row[2]) + "</p2></td>"
                     teruggeven = teruggeven + "</tr>"
                 teruggeven = teruggeven + "</table>"
         if searchword != "":
@@ -312,10 +320,12 @@ def pagina(filename):
                     pass
                 else:
                     teruggeven = teruggeven + "<tr>"
-                    teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
-                    teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
-                    teruggeven = teruggeven + "<td>" + str(taxonomies(a[2])) + "</td>"
-                    teruggeven = teruggeven + "<td>" + str(a[3]) + "</tb>"
+                    teruggeven = teruggeven + "<td>" \
+                                              "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(a[0]) + "\">" \
+                                              "" + str(a[0]) + "</a></td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(a[1]) + "</p2></td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(taxonomies(a[2])) + "</p2></td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(a[3]) + "</p2></tb>"
                     teruggeven = teruggeven + "</tr>"
             cursor.close()
             conn.close()
@@ -338,9 +348,11 @@ def pagina(filename):
 
             for a in data:
                 teruggeven = teruggeven + "<tr>"
-                teruggeven = teruggeven + "<td>" + str(a[0]) + "</td>"
-                teruggeven = teruggeven + "<td>" + str(a[1]) + "</td>"
-                teruggeven = teruggeven + "<td>" + str(a[2]) + "</td>"
+                teruggeven = teruggeven + "<td>"\
+                                          "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(a[0]) + "\">" \
+                                          "" + str(a[0]) + "</a></td>"
+                teruggeven = teruggeven + "<td><p2>" + str(a[1]) + "<p2></td>"
+                teruggeven = teruggeven + "<td><p2>" + str(a[2]) + "<p2></td>"
                 teruggeven = teruggeven + "</tr>"
 
             teruggeven = teruggeven + "</table>"

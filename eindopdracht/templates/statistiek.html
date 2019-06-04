@@ -18,11 +18,11 @@
 
         function drawChart() {
 
-            var data = google.visualization.arrayToDataTable([{{teruggeven | safe}}])
+            var data = google.visualization.arrayToDataTable([{{teruggeven|safe}}])
             ;
 
             var options = {
-                title: 'Veeg over de delen van de PieChart om te zien hoeveel procent het organisme van de top 5 bedekt.'
+                title:'Veeg over de delen van de PieChart om te zien hoeveel procent het organisme van de top 5 bedekt.'
             };
 
             var chart = new google.visualization.PieChart(document.getElementById('piechart'));
