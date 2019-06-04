@@ -4,9 +4,7 @@
 import mysql.connector
 from Bio.Blast import NCBIWWW, NCBIXML
 from flask import Flask, request, render_template, make_response
-# tijdelijke imports
-import sys
-import traceback
+
 
 app = Flask(__name__)
 
@@ -386,7 +384,7 @@ def pagina(filename):
         if request.method == 'POST':
             try:
                 seq = request.form["iets"]
-            except Exception as err:
+            except:
                 seq = "Geef sequentie in"
             print(seq)
             if seq is not None:
