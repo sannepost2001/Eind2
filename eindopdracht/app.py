@@ -360,7 +360,8 @@ def pagina(filename):
 
     elif filename == "statistiek.html":
         # """"""
-        # try:
+        try:
+            # voor de top 5
             conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
                                            user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
                                            password="ConnectionPWD")
@@ -370,10 +371,24 @@ def pagina(filename):
             cursor.close()
             conn.close()
             teruggeven = "['Naam', '%'],"
-            #
             for row in records:
                 teruggeven = teruggeven + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
             teruggeven = teruggeven[:-1]
+            # voor de top 10
+            conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
+                                           user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
+                                           password="ConnectionPWD")
+            cursor = conn.cursor()
+            cursor.execute("select name, count(*) from blast group by name order by 2 desc limit 10")
+            info = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
+            cursor.close()
+            conn.close()
+            joh = "['Naam', '%'],"
+            for row in info:
+                joh = joh + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
+            joh = joh[:-1]
+            print(joh)
+            # voor de gehele database
             conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
                                            user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
                                            password="ConnectionPWD")
@@ -383,13 +398,12 @@ def pagina(filename):
             cursor.close()
             conn.close()
             giveback = "['Naam', '%'],"
-            #
             for row in gegevens:
                 giveback = giveback + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
             giveback = giveback[:-1]
-            return render_template("statistiek.html", teruggeven=teruggeven, giveback = giveback)
-        # except:
-        #     return render_template("error.html")
+            return render_template("statistiek.html", teruggeven=teruggeven, giveback=giveback, joh=joh)
+        except:
+            return render_template("error.html")
 
     elif filename == "zelfblast.html":
         seq = ""

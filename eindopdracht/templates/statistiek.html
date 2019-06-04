@@ -10,7 +10,7 @@
 <header>
     <h1 align="left"><img height="146" src="/static/champignonengif.gif" width="121">Champignons compost
         <img height="146" src="/static/champignonengif.gif" width="121"></h1>
-
+    <!--voor de top 5-->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
         google.charts.load('current', {'packages': ['corechart']});
@@ -29,7 +29,26 @@
             chart.draw(gegevens, options );
         }
     </script>
+    <!--voor de top 10-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
 
+        function drawChart() {
+
+            var gegeven = google.visualization.arrayToDataTable([{{joh|safe}}])
+            ;
+            var optie = {
+                title:'Veeg over de delen van de PieChart om te zien hoeveel procent het organisme van de top 10 bedekt.'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart2'));
+
+            chart.draw(gegeven, optie );
+        }
+    </script>
+    <!--voor de gehel database-->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
         google.charts.load('current', {'packages': ['corechart']});
@@ -41,11 +60,12 @@
             var opties = {
                 title:'Veeg over de delen van de PieChart om te zien hoeveel procent het organisme van al de data bedekt.'
             };
-            var chart = new google.visualization.PieChart(document.getElementById('piechart2'));
+            var chart = new google.visualization.PieChart(document.getElementById('piechart3'));
 
             chart.draw( data,  opties);
         }
     </script>
+
 </header>
 
 <nav>
@@ -59,9 +79,11 @@
     </ul>
 </nav>
 <main>
-
-    <div id="piechart1" style="width: 8000px"></div><br>
-    <div id="piechart2" style="width: 8000px"></div>
+    <article>
+        <div id="piechart1" style="height: 360px; width: 100%;"></div>
+        <div id="piechart2" style="height: 360px; width: 100%;"></div>
+        <div id="piechart3" style="height: 360px; width: 100%;"></div>
+    </article>
     <aside>
         <h3>Gerelateerd</h3>
         <ul>
