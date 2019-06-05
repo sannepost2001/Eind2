@@ -360,7 +360,7 @@ def pagina(filename):
 
     elif filename == "statistiek.html":
         # """"""
-        try:
+         try:
             # voor de top 5
             conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
                                            user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
@@ -370,10 +370,10 @@ def pagina(filename):
             records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
             cursor.close()
             conn.close()
-            teruggeven = "['Naam', '%'],"
+            vijf = "['Naam', '%'],"
             for row in records:
-                teruggeven = teruggeven + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
-            teruggeven = teruggeven[:-1]
+                vijf = vijf + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
+            vijf = vijf[:-1]
             # voor de top 10
             conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
                                            user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
@@ -383,11 +383,10 @@ def pagina(filename):
             info = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
             cursor.close()
             conn.close()
-            joh = "['Naam', '%'],"
+            tien = "['Naam', '%'],"
             for row in info:
-                joh = joh + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
-            joh = joh[:-1]
-            print(joh)
+                tien = tien + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
+            tien = tien[:-1]
             # voor de gehele database
             conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
                                            user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
@@ -397,12 +396,27 @@ def pagina(filename):
             gegevens = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
             cursor.close()
             conn.close()
-            giveback = "['Naam', '%'],"
+            gehele = "['Naam', '%'],"
             for row in gegevens:
-                giveback = giveback + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
-            giveback = giveback[:-1]
-            return render_template("statistiek.html", teruggeven=teruggeven, giveback=giveback, joh=joh)
-        except:
+                gehele = gehele + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
+            gehele = gehele[:-1]
+            # voor de meest voorkomende taxonomy
+            conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
+                                           user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
+                                           password="ConnectionPWD")
+            cursor = conn.cursor()
+            cursor.execute("select t.name, b.TAXONOMY_id from taxonomy t join blast b on b.TAXONOMY_id where t.id="
+                           "b.TAXONOMY_id group by t.name order by count(b.TAXONOMY_id) desc;")
+            gegeven = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
+            cursor.close()
+            conn.close()
+            tax = "['Naam', '%'],"
+            for row in gegeven:
+                tax = tax + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
+            tax = tax[:-1]
+            return render_template("statistiek.html", vijf=vijf, gehele=gehele, tien=tien, tax=tax)
+
+         except:
             return render_template("error.html")
 
     elif filename == "zelfblast.html":

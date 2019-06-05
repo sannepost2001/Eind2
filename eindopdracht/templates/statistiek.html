@@ -18,7 +18,7 @@
 
         function drawChart() {
 
-            var gegevens = google.visualization.arrayToDataTable([{{teruggeven|safe}}])
+            var gegevens = google.visualization.arrayToDataTable([{{vijf|safe}}])
             ;
             var options = {
                 title:'Veeg over de delen van de PieChart om te zien hoeveel procent het eiwit van de top 5 bedekt.'
@@ -37,7 +37,7 @@
 
         function drawChart() {
 
-            var gegeven = google.visualization.arrayToDataTable([{{joh|safe}}])
+            var gegeven = google.visualization.arrayToDataTable([{{tien|safe}}])
             ;
             var optie = {
                 title:'Veeg over de delen van de PieChart om te zien hoeveel procent het eiwit van de top 10 bedekt.'
@@ -48,19 +48,36 @@
             chart.draw(gegeven, optie );
         }
     </script>
-    <!--voor de gehel database-->
+    <!--voor de gehele database-->
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
         google.charts.load('current', {'packages': ['corechart']});
         google.charts.setOnLoadCallback(drawChart);
 
         function drawChart() {
-            var data = google.visualization.arrayToDataTable([{{giveback|safe}}])
+            var data = google.visualization.arrayToDataTable([{{gehele|safe}}])
             ;
             var opties = {
                 title:'Veeg over de delen van de PieChart om te zien hoeveel procent het eiwit van al de data bedekt.'
             };
             var chart = new google.visualization.PieChart(document.getElementById('piechart3'));
+
+            chart.draw( data,  opties);
+        }
+    </script>
+    <!--voor de meest voorkomende taxonomy-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([{{tax|safe}}])
+            ;
+            var opties = {
+                title:'Veeg over de delen van de PieChart om te zien hoeveel procent het organisme van al de taxonomy bedekt.'
+            };
+            var chart = new google.visualization.PieChart(document.getElementById('piechart4'));
 
             chart.draw( data,  opties);
         }
@@ -83,6 +100,7 @@
         <div id="piechart1" style="height: 360px; width: 100%;"></div>
         <div id="piechart2" style="height: 360px; width: 100%;"></div>
         <div id="piechart3" style="height: 360px; width: 100%;"></div>
+        <div id="piechart4" style="height: 360px; width: 100%;"></div>
     </article>
     <aside>
         <h3>Gerelateerd</h3>
