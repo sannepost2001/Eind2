@@ -59,9 +59,8 @@ def pagina(filename):
             return "Taxonomy not found"
 
     if filename == "bacterie.html":
-        # """ Als er op zoeken op bacterie naam wordt gebruikt dan wordt de bacterie.html pagina aangeroepen.
+        # Als er op zoeken op naam wordt gebruikt dan wordt de bacterie.html pagina aangeroepen.
         # deze pagina moet nog aangevuld worden met de data die je kruigt als je filterd op het zoekword
-        # """
         accessie = ""
         searchword = ""
         zoekwoord = ""
@@ -171,77 +170,72 @@ def pagina(filename):
 
     elif filename == "tabel.html":
         """"""
-        # try:
-        teruggeven = ""
-        sql = ""
-        naam = ""
-        coverage = ""
-        score = ""
-        identity = ""
-        evalue = ""
-        accessie = ""
-        if request.method == 'POST':
-            conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
-                                           user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
-                                           password="ConnectionPWD")
-            cursor = conn.cursor()
-            naam = request.form["naam"]
-            coverage = request.form["coverage"]
-            score = request.form["score"]
-            identity = request.form["identity"]
-            # evalue = request.form["evalue"]
-            accessie = request.form["accessie"]
-            if naam != "":
-                #
-                sql = sql + " and blast.name like '%" + naam + "%'"
-            if coverage != "":
-                #
-                sql = sql + " and querycoverage > " + coverage
-            if score != "":
-                #
-                sql = sql + " and bits > " + score
-            if identity != "":
-                #
-                sql = sql + " and percidentity > " + identity
-            # if evalue != "":
-            #     #
-            #     sql = sql + " and evalue < " + evalue + "%'"
-            # #
-            if accessie != "":
-                sql = sql + " and accessioncode like '%" + accessie + "%'"
-            query = "select blast.name, evalue, bits, querycoverage, percidentity, accessioncode from blast where 1=1" \
-                    + sql
-            cursor.execute(query)
-            records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
-            cursor.close()
-            conn.close()
-            teruggeven = ("<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
-                          + "    <tr>\n"
-                          + "    <th onclick=\"sortTable(0)\">Naam</th>\n"
-                          + "    <th onclick=\"sortTable(1)\">E-value:</th>\n"
-                          + "    <th onclick=\"sortTable(2)\">(Bit)score:</th>\n"
-                          + "    <th onclick=\"sortTable(3)\">Coverage:</th>\n"
-                          + "    <th onclick=\"sortTable(4)\">%identity:</th>\n"
-                          + "    <th onclick=\"sortTable(5)\">Accessiecode:</th>\n"
-                          + "    </tr>")
-            for row in records:
-                teruggeven = teruggeven + "<tr>"
-                teruggeven = teruggeven + "<td><p2>" + str(row[0]) + "</p2></td>"
-                teruggeven = teruggeven + "<td><p2>" + str(row[1]) + "</p2></td>"
-                teruggeven = teruggeven + "<td><p2>" + str(row[2]) + "</p2></td>"
-                teruggeven = teruggeven + "<td><p2>" + str(row[3]) + "</p2></td>"
-                teruggeven = teruggeven + "<td><p2>" + str(row[4]) + "</p2></td>"
-                teruggeven = teruggeven + "<td>" \
-                                          "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(row[5]) + "\">"\
-                                          "" + str(row[5]) + "</a></td>"
-                teruggeven = teruggeven + "</tr>"
-            teruggeven = teruggeven + "</table>"
-        return (render_template("tabel.html", teruggeven=teruggeven, naam=naam, identity=identity, score=score,
-                                evalue=evalue, coverage=coverage, accessie=accessie))
-        # except:
-        #     teruggeven = "Verkeerde zoek opdracht ingegeven. " + "<br>" + \
-        #                  "Vul alleen bij de naam een woord in en bij de rest alleen getallen."
-        #     return render_template("tabel.html", teruggeven=teruggeven)
+        try:
+            teruggeven = ""
+            sql = ""
+            naam = ""
+            coverage = ""
+            score = ""
+            identity = ""
+            evalue = ""
+            accessie = ""
+            if request.method == 'POST':
+                conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
+                                               user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
+                                               password="ConnectionPWD")
+                cursor = conn.cursor()
+                naam = request.form["naam"]
+                coverage = request.form["coverage"]
+                score = request.form["score"]
+                identity = request.form["identity"]
+                # evalue = request.form["evalue"]
+                accessie = request.form["accessie"]
+                if naam != "":
+                    #
+                    sql = sql + " and blast.name like '%" + naam + "%'"
+                if coverage != "":
+                    #
+                    sql = sql + " and querycoverage > " + coverage
+                if score != "":
+                    #
+                    sql = sql + " and bits > " + score
+                if identity != "":
+                    #
+                    sql = sql + " and percidentity > " + identity
+                if accessie != "":
+                    sql = sql + " and accessioncode like '%" + accessie + "%'"
+                query = "select blast.name, evalue, bits, querycoverage, percidentity, accessioncode from blast where 1=1" \
+                        + sql
+                cursor.execute(query)
+                records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
+                cursor.close()
+                conn.close()
+                # maakt een tabel van de gevonden data
+                teruggeven = ("<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
+                              + "    <tr>\n"
+                              + "    <th onclick=\"sortTable(0)\">Naam</th>\n"
+                              + "    <th onclick=\"sortTable(1)\">E-value:</th>\n"
+                              + "    <th onclick=\"sortTable(2)\">(Bit)score:</th>\n"
+                              + "    <th onclick=\"sortTable(3)\">Coverage:</th>\n"
+                              + "    <th onclick=\"sortTable(4)\">%identity:</th>\n"
+                              + "    <th onclick=\"sortTable(5)\">Accessiecode:</th>\n"
+                              + "    </tr>")
+                for row in records:
+                    teruggeven = teruggeven + "<tr>"
+                    teruggeven = teruggeven + "<td><p2>" + str(row[0]) + "</p2></td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(row[1]) + "</p2></td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(row[2]) + "</p2></td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(row[3]) + "</p2></td>"
+                    teruggeven = teruggeven + "<td><p2>" + str(row[4]) + "</p2></td>"
+                    teruggeven = teruggeven + "<td>" \
+                                              "<a href = \"https://www.ncbi.nlm.nih.gov/protein/" + str(row[5]) + "\">"\
+                                              "" + str(row[5]) + "</a></td>"
+                    teruggeven = teruggeven + "</tr>"
+                teruggeven = teruggeven + "</table>"
+            return render_template("tabel.html", teruggeven=teruggeven, naam=naam, identity=identity, score=score,
+                                    evalue=evalue, coverage=coverage, accessie=accessie)
+        except:
+            return render_template("error.html")
 
     elif filename == "seqs.html":
         # """ Als er op zoeken op bacterie naam wordt gebruikt dan wordt de bacterie.html pagina aangeroepen.
@@ -276,6 +270,7 @@ def pagina(filename):
                 cursor.execute(sql)
 
                 records = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
+                # maakt een tabel van de gevonden data
                 teruggeven = ("<p2>Gevonden data van het zoeken op naam:</p2><br>\n"
                               + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                               + "   <tr>\n"
@@ -400,21 +395,21 @@ def pagina(filename):
             for row in gegevens:
                 gehele = gehele + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
             gehele = gehele[:-1]
-            # voor de meest voorkomende taxonomy
-            conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
-                                           user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
-                                           password="ConnectionPWD")
-            cursor = conn.cursor()
-            cursor.execute("select t.name, b.TAXONOMY_id from taxonomy t join blast b on b.TAXONOMY_id where t.id="
-                           "b.TAXONOMY_id group by t.name order by count(b.TAXONOMY_id) desc;")
-            gegeven = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
-            cursor.close()
-            conn.close()
-            tax = "['Naam', '%'],"
-            for row in gegeven:
-                tax = tax + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
-            tax = tax[:-1]
-            return render_template("statistiek.html", vijf=vijf, gehele=gehele, tien=tien, tax=tax)
+            # # voor de meest voorkomende taxonomy
+            # conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
+            #                                user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
+            #                                password="ConnectionPWD")
+            # cursor = conn.cursor()
+            # cursor.execute("select t.name, b.TAXONOMY_id from taxonomy t join blast b on b.TAXONOMY_id where t.id="
+            #                "b.TAXONOMY_id group by t.name order by count(b.TAXONOMY_id) desc;")
+            # gegeven = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
+            # cursor.close()
+            # conn.close()
+            # tax = "['Naam', '%'],"
+            # for row in gegeven:
+            #     tax = tax + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
+            # tax = tax[:-1]
+            return render_template("statistiek.html", vijf=vijf, gehele=gehele, tien=tien) #, tax=tax)
 
          except:
             return render_template("error.html")
