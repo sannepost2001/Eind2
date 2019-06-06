@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <meta charset="utf-8">
+    <title>Champignonetjes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/name.css') }}">
+</head>
+<body>
+<header>
+    <h1 align="left"><img height="146" src="/static/champignonengif.gif" width="121">Champignons compost
+        <img height="146" src="/static/champignonengif.gif" width="121"></h1>
+    <!--voor de top 5-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+
+            var gegevens = google.visualization.arrayToDataTable([{{vijf|safe}}])
+            ;
+            var options = {
+                title:'Veeg over de delen van de PieChart om te zien hoeveel procent het eiwit van de top 5 bedekt.'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart1'));
+
+            chart.draw(gegevens, options );
+        }
+    </script>
+    <!--voor de top 10-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+
+            var gegeven = google.visualization.arrayToDataTable([{{tien|safe}}])
+            ;
+            var optie = {
+                title:'Veeg over de delen van de PieChart om te zien hoeveel procent het eiwit van de top 10 bedekt.'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart2'));
+
+            chart.draw(gegeven, optie );
+        }
+    </script>
+    <!--voor de gehele database-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([{{gehele|safe}}])
+            ;
+            var opties = {
+                title:'Veeg over de delen van de PieChart om te zien hoeveel procent het eiwit van al de data bedekt.'
+            };
+            var chart = new google.visualization.PieChart(document.getElementById('piechart3'));
+
+            chart.draw( data,  opties);
+        }
+    </script>
+
+    <!--&lt;!&ndash;voor de meest voorkomende taxonomy&ndash;&gt;-->
+    <!--<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>-->
+    <!--<script type="text/javascript">-->
+        <!--google.charts.load('current', {'packages': ['corechart']});-->
+        <!--google.charts.setOnLoadCallback(drawChart);-->
+
+        <!--function drawChart() {-->
+            <!--var data = google.visualization.arrayToDataTable([{{tax|safe}}])-->
+            <!--;-->
+            <!--var opties = {-->
+                <!--title:'Veeg over de delen van de PieChart om te zien hoeveel procent het organisme van al de taxonomy bedekt.'-->
+            <!--};-->
+            <!--var chart = new google.visualization.PieChart(document.getElementById('piechart4'));-->
+
+            <!--chart.draw( data,  opties);-->
+        <!--}-->
+    <!--</script>-->
+
+</header>
+
+<nav>
+    <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="bacterie.html">Doorzoek de database</a></li>
+        <li><a href="tabel.html">Tabel met blast data</a></li>
+        <li><a href="statistiek.html">Statistieken</a></li>
+        <li><a href="zelfblast.html">Zelf blasten</a></li>
+        <li><a href="seqs.html">Sequenties</a></li>
+    </ul>
+</nav>
+<main>
+    <article>
+        <div id="piechart1" style="height: 360px; width: 100%;"></div>
+        <div id="piechart2" style="height: 360px; width: 100%;"></div>
+        <div id="piechart3" style="height: 360px; width: 100%;"></div>
+        <div id="piechart4" style="height: 360px; width: 100%;"></div>
+    </article>
+    <aside>
+        <h3>Gerelateerd</h3>
+        <ul>
+            <li><a href="https://nl.wikipedia.org/wiki/Champignon">Champignons</a></li>
+            <li><a href="https://nl.wikipedia.org/wiki/Compost">Compost</a></li>
+            <li><a href="https://nl.wikipedia.org/wiki/Champost">Champost</a></li>
+            <!--<li><a href="#"></a></li>-->
+            <!--<li><a href="#"></a></li>-->
+        </ul>
+    </aside>
+</main>
+<footer>
+    <p1>Ruben Kampf, Ronald van Kuppevelt en Sanne Post.</p1>
+</footer>
+<br>
+</body>
+</html>
