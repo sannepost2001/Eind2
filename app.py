@@ -292,13 +292,11 @@ def pagina(filename):
                         teruggeven = teruggeven + "</tr>"
                     teruggeven = teruggeven + "</table>"
             if searchword != "":
-                print("hoi")
                 sql = "select blast.accessioncode, blast.name, taxonomy.name, sequence from taxonomy join blast on " \
                       "blast.TAXONOMY_id = taxonomy.id join sequence on blast.SEQUENCE_id = sequence.id " \
                       " where taxonomy.name like'%" + searchword + "%'"
                 cursor.execute(sql)
                 data = cursor.fetchall()
-
                 # maakt een tabel van de gevonden data
                 teruggeven = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
                               + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
@@ -308,11 +306,8 @@ def pagina(filename):
                               + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
                               + "   <th onclick=\"sortTable(3)\">Sequenties</th>\n"
                               + "   </tr>")
-
                 alreadyhave = []
-                print(data)
                 for a in data:
-                    print(a)
                     if str(a[0]) in alreadyhave:  # For some reason "not in" seems to be significantly slower?
                         pass
                     else:
@@ -400,21 +395,8 @@ def pagina(filename):
             for row in gegevens:
                 gehele = gehele + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
             gehele = gehele[:-1]
-            # # voor de meest voorkomende taxonomy
-            # conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
-            #                                user="kxxxf@hannl-hlo-bioinformatica-mysqlsrv", db="kxxxf",
-            #                                password="ConnectionPWD")
-            # cursor = conn.cursor()
-            # cursor.execute("select t.name, b.TAXONOMY_id from taxonomy t join blast b on b.TAXONOMY_id where t.id="
-            #                "b.TAXONOMY_id group by t.name order by count(b.TAXONOMY_id) desc;")
-            # gegeven = cursor.fetchall()  # lijst met al de namen die het zoekwoord in de naam hebben
-            # cursor.close()
-            # conn.close()
-            # tax = "['Naam', '%'],"
-            # for row in gegeven:
-            #     tax = tax + "['" + str(row[0]) + "', " + str(row[1]) + " ],"
-            # tax = tax[:-1]
-            return render_template("statistiek.html", vijf=vijf, gehele=gehele, tien=tien) #, tax=tax)
+
+            return render_template("statistiek.html", vijf=vijf, gehele=gehele, tien=tien)
 
         except:
             return render_template("error.html")
@@ -428,18 +410,14 @@ def pagina(filename):
                     seq = request.form["iets"]
                 except:
                     seq = "Geef sequentie in"
-                print(seq)
+
                 if seq is not None:
                     result_handle = NCBIWWW.qblast("blastx", "nr", seq)
                     blast_records = NCBIXML.parse(result_handle)
                     blast_record = next(blast_records)
                     teruggeven = "<br>"
-                    print("blasten")
-                    print(blast_records)
                     for alignment in blast_record.alignments:
-                        print("alignment")
                         for hsp in alignment.hsps:
-                            print("hsp")
                             teruggeven = str(teruggeven) + str('---------------------------------') + "<br>"
                             teruggeven = teruggeven + 'sequence: ' + str(alignment.title) + "<br>"
                             teruggeven = teruggeven + 'lengte: ' + str(alignment.length) + "<br>"
@@ -447,17 +425,14 @@ def pagina(filename):
                             teruggeven = teruggeven + str(hsp.query) + "<br>"
                             teruggeven = teruggeven + str(hsp.match) + "<br>"
                             teruggeven = teruggeven + str(hsp.sbjct) + "<br>"
-                    print("geblast")
                     if teruggeven == "<br>":
                         teruggeven = teruggeven + "Geen blast resultaten"
-                    print(teruggeven)
             return render_template("zelfblast.html", teruggeven=teruggeven, seq=seq)
         except:
             return render_template("error.html")
     else:
         resp = make_response(render_template(filename))
         return resp
-
 
 
 if __name__ == '__main__':
