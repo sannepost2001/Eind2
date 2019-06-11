@@ -59,8 +59,8 @@ def pagina(filename):
             return "Taxonomy not found"
 
     if filename == "bacterie.html":
-        # Als er op zoeken op naam wordt gebruikt dan wordt de bacterie.html pagina aangeroepen.
-        # deze pagina moet nog aangevuld worden met de data die je kruigt als je filterd op het zoekword
+        # Zoeken op de naam, de taxonomy en de accessiecode, wordt afzonderlijk gedaan dus er kan maar op 1 per keer
+        # gezocht worden
         try:
             accessie = ""
             searchword = ""
@@ -172,7 +172,7 @@ def pagina(filename):
             return render_template("error.html")
 
     elif filename == "tabel.html":
-        """"""
+        # geeft een tabel terug met de blast parameters, hier kan ook gefilterd op worden
         try:
             teruggeven = ""
             sql = ""
@@ -194,19 +194,21 @@ def pagina(filename):
                 # evalue = request.form["evalue"]
                 accessie = request.form["accessie"]
                 if naam != "":
-                    #
+                    # aanvulling van de query voor het zoeken op naam
                     sql = sql + " and blast.name like '%" + naam + "%'"
                 if coverage != "":
-                    #
+                    # aanvulling van de query voor het filteren op de coverage die groter is dan de gegeven coverage
                     sql = sql + " and querycoverage > " + coverage
                 if score != "":
-                    #
+                    # aanvulling van de query voor het filteren op de score die groter is dan de gegeven score
                     sql = sql + " and bits > " + score
                 if identity != "":
-                    #
+                    # aanvulling van de query voor het filteren op de idndentity die groter is dan de gegeven indertity
                     sql = sql + " and percidentity > " + identity
                 if accessie != "":
+                    # aanvulling van de query voor het zoeken op accessiecode
                     sql = sql + " and accessioncode like '%" + accessie + "%'"
+                # standaard query die wordt aangevuld met de query's van de gefliterde dingen
                 query = "select blast.name, evalue, bits, querycoverage, percidentity, accessioncode " \
                         "from blast where 1=1" + sql
                 cursor.execute(query)
@@ -236,14 +238,13 @@ def pagina(filename):
                     teruggeven = teruggeven + "</tr>"
                 teruggeven = teruggeven + "</table>"
             return render_template("tabel.html", teruggeven=teruggeven, naam=naam, identity=identity, score=score,
-                                    evalue=evalue, coverage=coverage, accessie=accessie)
+                                   evalue=evalue, coverage=coverage, accessie=accessie)
         except:
             return render_template("error.html")
 
     elif filename == "seqs.html":
-        # """ Als er op zoeken op bacterie naam wordt gebruikt dan wordt de bacterie.html pagina aangeroepen.
-        # deze pagina moet nog aangevuld worden met de data die je kruigt als je filterd op het zoekword
-        # """
+        # Zoeken op de naam, de taxonomy en de accessiecode, wordt afzonderlijk gedaan dus er kan maar op 1 per keer
+        # gezocht worden, deze pagina geeft ook de sequenties terug de zijn gebruikt voor het blasten
         try:
             accessie = ""
             searchword = ""
@@ -254,14 +255,17 @@ def pagina(filename):
                                            password="ConnectionPWD")
             cursor = conn.cursor()
             if request.method == 'POST':
+                # zoeken op naam
                 try:
                     zoekwoord = request.form["zoekwoord"]
                 except KeyError:
                     zoekwoord = ""
+                # zoeken op taxonomy
                 try:
                     searchword = request.form["searchword"]
                 except KeyError:
                     searchword = ""
+                # zoeken op accessiecode
                 try:
                     accessie = request.form["accessie"]
                 except KeyError:
@@ -354,7 +358,7 @@ def pagina(filename):
         except:
             return render_template("error.html")
     elif filename == "statistiek.html":
-        # """"""
+        # Laat verschillende piechart zien
         try:
             # voor de top 5
             conn = mysql.connector.connect(host="hannl-hlo-bioinformatica-mysqlsrv.mysql.database.azure.com",
@@ -402,6 +406,7 @@ def pagina(filename):
             return render_template("error.html")
 
     elif filename == "zelfblast.html":
+        # blasten op de pagina zelf, dit werkt als je de pagina lokaal draait wel maar via azure helaas niet
         try:
             seq = ""
             teruggeven = ""
@@ -431,6 +436,7 @@ def pagina(filename):
         except:
             return render_template("error.html")
     else:
+        # pagina's zonder een speciale aanvulling worden zo geopent
         resp = make_response(render_template(filename))
         return resp
 
