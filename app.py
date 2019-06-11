@@ -97,9 +97,9 @@ def pagina(filename):
                     teruggeven = ("<p2>Gevonden data van het zoeken op naam:</p2><br>\n"
                                   + "   <table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                                   + "   <tr>\n"
-                                  + "   <th onclick=\"sortTable(0)\">Naam</th>\n"
-                                  + "   <th onclick=\"sortTable(1)\">Accessiecode:</th>\n"
-                                  + "   <th onclick=\"sortTable(2)\">Functie:</th>\n"
+                                  + "   <th onclick=\"sortTable(0)\"><p1>Naam</p1></th>\n"
+                                  + "   <th onclick=\"sortTable(1)\"><p1>Accessiecode:</p1></th>\n"
+                                  + "   <th onclick=\"sortTable(2)\"><p1>Functie:</p1></th>\n"
                                   + "   </tr>")
                     for row in records:
                         teruggeven = teruggeven + "<tr>"
@@ -121,9 +121,9 @@ def pagina(filename):
                     teruggeven = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
                                   + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                                   + "   <tr>\n"
-                                  + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
-                                  + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
-                                  + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
+                                  + "   <th onclick=\"sortTable(0)\"><p1>Accessiecode</p1></th>\n"
+                                  + "   <th onclick=\"sortTable(1)\"><p1>Naam</p1></th>\n"
+                                  + "   <th onclick=\"sortTable(2)\"><p1>Taxonomy</p1></th>\n"
                                   + "   </tr>")
                     alreadyhave = []
                     for a in data:
@@ -150,8 +150,8 @@ def pagina(filename):
                     teruggeven = ("<p2>Gevonden data van het zoeken op accessiecode:</p2><br>\n"
                                   + "   <table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                                   + "   <tr>\n"
-                                  + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
-                                  + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
+                                  + "   <th onclick=\"sortTable(0)\"><p1>Accessiecode</p1></th>\n"
+                                  + "   <th onclick=\"sortTable(1)\"><p1>Naam</p1></th>\n"
                                   + "   </tr>")
 
                     for a in data:
@@ -216,12 +216,12 @@ def pagina(filename):
                 # maakt een tabel van de gevonden data
                 teruggeven = ("<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                               + "    <tr>\n"
-                              + "    <th onclick=\"sortTable(0)\">Naam</th>\n"
-                              + "    <th onclick=\"sortTable(1)\">E-value:</th>\n"
-                              + "    <th onclick=\"sortTable(2)\">(Bit)score:</th>\n"
-                              + "    <th onclick=\"sortTable(3)\">Coverage:</th>\n"
-                              + "    <th onclick=\"sortTable(4)\">%identity:</th>\n"
-                              + "    <th onclick=\"sortTable(5)\">Accessiecode:</th>\n"
+                              + "    <th onclick=\"sortTable(0)\"><p1>Naam</p1></th>\n"
+                              + "    <th onclick=\"sortTable(1)\"><p1>E-value:</p1></th>\n"
+                              + "    <th onclick=\"sortTable(2)\"><p1>(Bit)score:</p1></th>\n"
+                              + "    <th onclick=\"sortTable(3)\"><p1>Coverage:</p1></th>\n"
+                              + "    <th onclick=\"sortTable(4)\"><p1>%identity:</p1></th>\n"
+                              + "    <th onclick=\"sortTable(5)\"><p1>Accessiecode:</p1></th>\n"
                               + "    </tr>")
                 for row in records:
                     teruggeven = teruggeven + "<tr>"
@@ -278,9 +278,9 @@ def pagina(filename):
                     teruggeven = ("<p2>Gevonden data van het zoeken op naam:</p2><br>\n"
                                   + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                                   + "   <tr>\n"
-                                  + "   <th onclick=\"sortTable(0)\">Naam</th>\n"
-                                  + "   <th onclick=\"sortTable(1)\">Accessiecode:</th>\n"
-                                  + "   <th onclick=\"sortTable(2)\">Sequentie:</th>\n"
+                                  + "   <th onclick=\"sortTable(0)\"><p1>Naam:</p1></th>\n"
+                                  + "   <th onclick=\"sortTable(1)\"><p1>Accessiecode:</p1></th>\n"
+                                  + "   <th onclick=\"sortTable(2)\"><p1>Sequentie:</p1></th>\n"
                                   + "   </tr>")
                     for row in records:
                         teruggeven = teruggeven + "<tr>"
@@ -301,10 +301,10 @@ def pagina(filename):
                 teruggeven = ("<p2>Gevonden data van het zoeken op taxonomy:</p2><br>\n"
                               + "<table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                               + "   <tr>\n"
-                              + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
-                              + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
-                              + "   <th onclick=\"sortTable(2)\">Taxonomy</th>\n"
-                              + "   <th onclick=\"sortTable(3)\">Sequenties</th>\n"
+                              + "   <th onclick=\"sortTable(0)\"><p1>Accessiecode</p1></th>\n"
+                              + "   <th onclick=\"sortTable(1)\"><p1>Naam</p1></th>\n"
+                              + "   <th onclick=\"sortTable(2)\"><p1>Taxonomy</p1></th>\n"
+                              + "   <th onclick=\"sortTable(3)\"><p1>Sequenties</p1></th>\n"
                               + "   </tr>")
                 alreadyhave = []
                 for a in data:
@@ -333,9 +333,9 @@ def pagina(filename):
                 teruggeven = ("<p2>Gevonden data van het zoeken op accessiecode:</p2><br>\n"
                               + "   <table id=\"myTable\" style=\"width:777px; height: 400px;\">"
                               + "   <tr>\n"
-                              + "   <th onclick=\"sortTable(0)\">Accessiecode</th>\n"
-                              + "   <th onclick=\"sortTable(1)\">Naam</th>\n"
-                              + "   <th onclick=\"sortTable(2)\">Sequenties</th>\n"
+                              + "   <th onclick=\"sortTable(0)\"><p1>Accessiecode</p1></th>\n"
+                              + "   <th onclick=\"sortTable(1)\"><p1>Naam</p1></th>\n"
+                              + "   <th onclick=\"sortTable(2)\"><p1>Sequenties</p1></th>\n"
                               + "   </tr>")
 
                 for a in data:
