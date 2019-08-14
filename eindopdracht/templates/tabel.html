@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <meta charset="utf-8">
+    <title>Champignonetjes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/name.css') }}">
+</head>
+<body>
+<header>
+    <h1><img height="146" src="/static/champignonengif.gif" width="121">Champignons compost
+        <img height="146" src="/static/champignonengif.gif" width="121"></h1>
+</header>
+<nav>
+    <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="bacterie.html">Doorzoek de database</a></li>
+        <li><a href="tabel.html">Tabel met blast data</a></li>
+        <li><a href="statistiek.html">Statistieken</a></li>
+        <li><a href="zelfblast.html">Zelf blasten</a></li>
+        <li><a href="seqs.html">Sequenties</a></li>
+    </ul>
+</nav>
+<main>
+    <article>
+        <h2>Geef verschillende parameters mee om te filteren in de database</h2>
+        <form method="POST">
+            <p2>Naam:</p2>
+            <input type="text" name="naam" value="{{naam}}">
+            <p2>(Bit)score:</p2>
+            <input type="text" name="score" value="{{score}}">
+            <p2>Coverage:</p2>
+            <input type="text" name="coverage" value="{{coverage}}"><br>
+            <p2>%identity:</p2>
+            <input type="text" name="identity" value="{{identity}}">
+            <p2>Accessiecode:</p2>
+            <input type="text" name="accessie" value="{{accessie}}">
+            <input type="submit" value="Submit">
+        </form>
+        {{teruggeven|safe}}
+    </article>
+
+    <script>
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("myTable");
+            switching = true;
+            //Set the sorting direction to ascending:
+            dir = "asc";
+            /*Make a loop that will continue until
+            no switching has been done:*/
+            while (switching) {
+                //start by saying: no switching is done:
+                switching = false;
+                rows = table.rows;
+                /*Loop through all table rows (except the
+                first, which contains table headers):*/
+                for (i = 1; i < (rows.length - 1); i++) {
+                    //start by saying there should be no switching:
+                    shouldSwitch = false;
+                    /*Get the two elements you want to compare,
+                    one from current row and one from the next:*/
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    /*check if the two rows should switch place,
+                    based on the direction, asc or desc:*/
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            //if so, mark as a switch and break the loop:
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    /*If a switch has been marked, make the switch
+                    and mark that a switch has been done:*/
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    //Each time a switch is done, increase this count by 1:
+                    switchcount++;
+                } else {
+                    /*If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again.*/
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+    </script>
+
+    <aside>
+        <h3>Gerelateerd</h3>
+        <ul>
+            <li><a href="https://nl.wikipedia.org/wiki/Champignon">Champignons</a></li>
+            <li><a href="https://nl.wikipedia.org/wiki/Compost">Compost</a></li>
+            <li><a href="https://nl.wikipedia.org/wiki/Champost">Champost</a></li>
+        </ul>
+    </aside>
+
+</main>
+<footer>
+    <a href="over.html">Over</a>
+</footer>
+<br>
+</body>
+</html>
